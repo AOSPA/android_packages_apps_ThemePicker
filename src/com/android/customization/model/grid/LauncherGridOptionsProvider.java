@@ -18,10 +18,7 @@ package com.android.customization.model.grid;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
-import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
@@ -60,15 +57,8 @@ public class LauncherGridOptionsProvider {
 
     public LauncherGridOptionsProvider(Context context, String authorityMetadataKey) {
         mContext = context;
-        Intent homeIntent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
-
-        ResolveInfo info = context.getPackageManager().resolveActivity(homeIntent,
-                PackageManager.MATCH_DEFAULT_ONLY | PackageManager.GET_META_DATA);
-        if (info != null && info.activityInfo != null && info.activityInfo.metaData != null) {
-            mGridProviderAuthority = info.activityInfo.metaData.getString(authorityMetadataKey);
-        } else {
-            mGridProviderAuthority = null;
-        }
+        // TODO: read this from Activity metadata instead
+        mGridProviderAuthority = mContext.getString(R.string.grid_control_authority);
         // TODO: check permissions if needed
         mProviderInfo = TextUtils.isEmpty(mGridProviderAuthority) ? null
                 : mContext.getPackageManager().resolveContentProvider(mGridProviderAuthority, 0);
