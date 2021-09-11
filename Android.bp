@@ -105,4 +105,15 @@ android_app {
     manifest: "AndroidManifest.xml",
     additional_manifests: [":WallpaperPicker2_Manifest"],
     overrides: ["WallpaperPicker2"],
+    required: ["PixelThemesStub"],
+}
+
+android_app_import {
+    name: "PixelThemesStub",
+    apk: "PixelThemesStub.apk",
+    presigned: true,
+    product_specific: true,
+    dex_preopt: {
+        enabled: false,
+    },
 }
