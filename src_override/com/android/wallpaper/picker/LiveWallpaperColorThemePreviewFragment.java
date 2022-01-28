@@ -49,7 +49,7 @@ public class LiveWallpaperColorThemePreviewFragment extends LivePreviewFragment 
             mWallpaperColors = wallpaperColors;
             Context context = getContext();
             RemoteViews.ColorResources.create(context,
-                    new WallpaperColorResources(wallpaperColors).getColorOverlay()).apply(context);
+                    new WallpaperColorResources(wallpaperColors, context).getColorOverlay()).apply(context);
             updateSystemBarColor(context);
             getView().setBackgroundColor(
                     MaterialAttributes.resolveOrThrow(context, android.R.attr.colorPrimary,
