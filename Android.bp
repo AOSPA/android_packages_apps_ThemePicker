@@ -62,26 +62,6 @@ genrule {
         + "$(location soong_zip) -o $(out) -C $$RES_DIR -D $$RES_DIR"
 }
 
-android_library {
-    name: "ThemePicker_core",
-
-    static_libs: [
-        "wallpaper-common-deps",
-        "SettingsLibSettingsTheme",
-        "SystemUI-statsd",
-        "styleprotoslite",
-        "monet",
-    ],
-
-    optimize: {
-        enabled: false,
-    },
-
-    resource_dirs: ["res"],
-
-    kotlincflags: ["-Xjvm-default=enable"],
-}
-
 //
 // Build app code.
 //
@@ -89,7 +69,11 @@ android_app {
     name: "ThemePicker",
 
     static_libs: [
-        "ThemePicker_core",
+        "wallpaper-common-deps",
+        "SettingsLibSettingsTheme",
+        "SystemUI-statsd",
+        "styleprotoslite",
+        "monet",
     ],
 
     srcs: [
@@ -107,7 +91,7 @@ android_app {
         enabled: false,
     },
     kotlincflags: ["-Xjvm-default=enable"],
-    certificate: "platform",
+    certificate: "",
 
     privileged: true,
     system_ext_specific: true,
