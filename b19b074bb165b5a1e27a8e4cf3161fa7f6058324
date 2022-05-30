@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc353b8a_43ca97c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000463
+      },
+      "writtenOn": "2022-05-30T14:40:43Z",
+      "side": 1,
+      "message": "this may cause conflicts while merging future TAGs. Can\u0027t you simple translate at vues-pt instead? ",
+      "revId": "b19b074bb165b5a1e27a8e4cf3161fa7f6058324",
+      "serverId": "3162e3d8-d894-470e-abd9-724f7b0effad"
+    }
+  ]
+}
