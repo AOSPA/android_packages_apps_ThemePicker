@@ -52,6 +52,24 @@
       "parentUuid": "eab470e1_cac6d461",
       "revId": "b19b074bb165b5a1e27a8e4cf3161fa7f6058324",
       "serverId": "3162e3d8-d894-470e-abd9-724f7b0effad"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e6b2443_8cf08bf5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000463
+      },
+      "writtenOn": "2022-05-31T09:56:12Z",
+      "side": 1,
+      "message": "the values-pt is where the app fall back when the specific region isn\u0027t set.",
+      "parentUuid": "7b0c925c_f786e45f",
+      "revId": "b19b074bb165b5a1e27a8e4cf3161fa7f6058324",
+      "serverId": "3162e3d8-d894-470e-abd9-724f7b0effad"
     }
   ]
 }
