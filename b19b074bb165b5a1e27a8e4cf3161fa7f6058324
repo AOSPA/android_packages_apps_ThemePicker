@@ -34,6 +34,24 @@
       "parentUuid": "cc353b8a_43ca97c5",
       "revId": "b19b074bb165b5a1e27a8e4cf3161fa7f6058324",
       "serverId": "3162e3d8-d894-470e-abd9-724f7b0effad"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b0c925c_f786e45f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000463
+      },
+      "writtenOn": "2022-05-31T09:54:37Z",
+      "side": 1,
+      "message": "btw, you don\u0027t need to move the values-pt to *-pt-rBR, you can just push your translations to *-rBR folder.",
+      "parentUuid": "eab470e1_cac6d461",
+      "revId": "b19b074bb165b5a1e27a8e4cf3161fa7f6058324",
+      "serverId": "3162e3d8-d894-470e-abd9-724f7b0effad"
     }
   ]
 }
