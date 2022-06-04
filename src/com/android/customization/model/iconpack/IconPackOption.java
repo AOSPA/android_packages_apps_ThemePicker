@@ -86,13 +86,13 @@ public class IconPackOption implements CustomizationOption<IconPackOption> {
     public boolean isActive(CustomizationManager<IconPackOption> manager) {
         IconPackManager iconManager = (IconPackManager) manager;
         OverlayManagerCompat overlayManager = iconManager.getOverlayManager();
-        if (mTitle.equals("Default")) {
+        if (mTitle.equals(view.getContext().getString(R.string.default_theme_title))) {
             return overlayManager.getEnabledPackageName(SYSUI_PACKAGE, OVERLAY_CATEGORY_ICON_SYSUI) == null &&
                     overlayManager.getEnabledPackageName(SETTINGS_PACKAGE, OVERLAY_CATEGORY_ICON_SETTINGS) == null &&
                     overlayManager.getEnabledPackageName(ANDROID_PACKAGE, OVERLAY_CATEGORY_ICON_ANDROID) == null;
         }
         for (Map.Entry<String, String> overlayEntry : getOverlayPackages().entrySet()) {
-            if(overlayEntry.getValue() == null || !overlayEntry.getValue().equals(overlayManager.getEnabledPackageName(determinePackage(overlayEntry.getKey()), overlayEntry.getKey()))) {
+            if (overlayEntry.getValue() == null || !overlayEntry.getValue().equals(overlayManager.getEnabledPackageName(determinePackage(overlayEntry.getKey()), overlayEntry.getKey()))) {
                 return false;
             }
         }
