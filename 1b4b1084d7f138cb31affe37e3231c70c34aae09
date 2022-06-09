@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e4ef1c8_d6cf6638",
+        "filename": "src/com/android/customization/model/color/ColorSectionController.kt",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1000463
+      },
+      "writtenOn": "2022-06-09T11:02:47Z",
+      "side": 1,
+      "message": "indentation?",
+      "revId": "1b4b1084d7f138cb31affe37e3231c70c34aae09",
+      "serverId": "3162e3d8-d894-470e-abd9-724f7b0effad"
+    }
+  ]
+}
