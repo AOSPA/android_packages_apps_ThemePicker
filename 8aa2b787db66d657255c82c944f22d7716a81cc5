@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02a16389_58ad0fbd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000427
+      },
+      "writtenOn": "2022-09-04T12:51:59Z",
+      "side": 1,
+      "message": "massive yikes, let\u0027s do aospathemepicker",
+      "revId": "8aa2b787db66d657255c82c944f22d7716a81cc5",
+      "serverId": "3162e3d8-d894-470e-abd9-724f7b0effad"
+    }
+  ]
+}
