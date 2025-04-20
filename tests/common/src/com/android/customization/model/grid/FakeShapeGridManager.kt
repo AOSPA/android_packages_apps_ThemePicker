@@ -17,28 +17,35 @@
 package com.android.customization.model.grid
 
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import androidx.core.graphics.drawable.toDrawable
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class FakeShapeGridManager @Inject constructor() : ShapeGridManager {
 
-    val gridOptionDrawable0: Drawable = ColorDrawable(Color.BLUE)
-    val gridOptionDrawable1: Drawable = ColorDrawable(Color.GREEN)
+    val gridOptionDrawable0: Drawable = Color.BLUE.toDrawable()
+    val gridOptionDrawable1: Drawable = Color.GREEN.toDrawable()
 
-    private var gridOptions: List<GridOptionModel>? = DEFAULT_GRID_OPTION_LIST
+    private var gridOptions: List<GridOptionModel> = DEFAULT_GRID_OPTION_LIST
 
     private var shapeOptions: List<ShapeOptionModel>? = DEFAULT_SHAPE_OPTION_LIST
 
-    override suspend fun getGridOptions(): List<GridOptionModel>? = gridOptions
+    fun setGridOptions(gridOptions: List<GridOptionModel>) {
+        this.gridOptions = gridOptions
+    }
+
+    override suspend fun getGridOptions(): List<GridOptionModel> = gridOptions
 
     override suspend fun getShapeOptions(): List<ShapeOptionModel>? = shapeOptions
 
-    override fun applyShapeGridOption(shapeKey: String, gridKey: String): Int {
+    override fun applyGridOption(gridKey: String) {
+        gridOptions = gridOptions.map { it.copy(isCurrent = it.key == gridKey) }
+    }
+
+    override fun applyShapeOption(shapeKey: String): Int {
         shapeOptions = shapeOptions?.map { it.copy(isCurrent = it.key == shapeKey) }
-        gridOptions = gridOptions?.map { it.copy(isCurrent = it.key == gridKey) }
         return 0
     }
 
@@ -109,5 +116,11 @@ class FakeShapeGridManager @Inject constructor() : ShapeGridManager {
                     isCurrent = false,
                 ),
             )
+
+        const val FOUR_SIDED_COOKIE_IDX = 1
+        private val FOUR_SIDED_COOKIE_MODEL = DEFAULT_SHAPE_OPTION_LIST[FOUR_SIDED_COOKIE_IDX]
+        val FOUR_SIDED_COOKIE_KEY = FOUR_SIDED_COOKIE_MODEL.key
+        val FOUR_SIDED_COOKIE_TITLE = FOUR_SIDED_COOKIE_MODEL.title
+        val FOUR_SIDED_COOKIE_PATH = FOUR_SIDED_COOKIE_MODEL.path
     }
 }

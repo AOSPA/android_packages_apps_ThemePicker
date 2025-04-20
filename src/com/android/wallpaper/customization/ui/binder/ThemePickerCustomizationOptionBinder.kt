@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.ui.platform.ComposeView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.isVisible
@@ -44,6 +45,7 @@ import com.android.systemui.plugins.clocks.ClockPreviewConfig
 import com.android.systemui.shared.Flags
 import com.android.themepicker.R
 import com.android.wallpaper.config.BaseFlags
+import com.android.wallpaper.customization.ui.compose.ShortcutsFloatingSheet
 import com.android.wallpaper.customization.ui.util.ThemePickerCustomizationOptionUtil.ThemePickerHomeCustomizationOption
 import com.android.wallpaper.customization.ui.util.ThemePickerCustomizationOptionUtil.ThemePickerLockCustomizationOption
 import com.android.wallpaper.customization.ui.viewmodel.ThemePickerCustomizationOptionsViewModel
@@ -330,8 +332,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                 }
 
                 launch {
-                    optionsViewModel.shapeGridPickerViewModel.selectedGridOption.collect {
-                        gridOption ->
+                    optionsViewModel.fridPickerViewModel.selectedGridOption.collect { gridOption ->
                         TextViewBinder.bind(optionShapeGridDescription, gridOption.text)
                         gridOption.payload?.let { optionShapeGridIcon.setImageDrawable(it) }
                     }
@@ -375,6 +376,32 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
 
                 if (BaseFlags.get().isPackThemeEnabled()) {
                     launch {
+                        optionsViewModel.packThemeViewModel.packThemeData.collect { packThemeData ->
+                            val homeTitle =
+                                optionPackThemeHome?.findViewById<TextView>(R.id.option_entry_title)
+                            val lockTitle =
+                                optionPackThemeLock?.findViewById<TextView>(R.id.option_entry_title)
+                            val homeDescription =
+                                optionPackThemeHome?.findViewById<TextView>(
+                                    R.id.option_entry_description
+                                )
+                            val lockDescription =
+                                optionPackThemeHome?.findViewById<TextView>(
+                                    R.id.option_entry_description
+                                )
+                            if (packThemeData.currentThemePackInfo.title.isNotEmpty()) {
+                                homeTitle?.text = packThemeData.currentThemePackInfo.title
+                                lockTitle?.text = packThemeData.currentThemePackInfo.title
+                            }
+                            if (packThemeData.currentThemePackInfo.description.isNotEmpty()) {
+                                homeDescription?.text =
+                                    packThemeData.currentThemePackInfo.description
+                                lockDescription?.text =
+                                    packThemeData.currentThemePackInfo.description
+                            }
+                        }
+                    }
+                    launch {
                         optionsViewModel.packThemeViewModel.startThemePackActivityIntent.collect {
                             intent ->
                             if (intent != null) {
@@ -404,17 +431,29 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                     lifecycleOwner,
                 )
             }
-
-        customizationOptionFloatingSheetViewMap
-            ?.get(ThemePickerLockCustomizationOption.SHORTCUTS)
-            ?.let {
-                ShortcutFloatingSheetBinder.bind(
-                    it,
-                    optionsViewModel,
-                    colorUpdateViewModel,
-                    lifecycleOwner,
-                )
-            }
+        if (isComposeRefactorEnabled) {
+            customizationOptionFloatingSheetViewMap
+                ?.get(ThemePickerLockCustomizationOption.SHORTCUTS)
+                ?.let {
+                    // TODO(b/409112907) Evaluate Compose performance before enabling flag
+                    (it as ComposeView).setContent {
+                        ShortcutsFloatingSheet(
+                            optionsViewModel.keyguardQuickAffordancePickerViewModel2
+                        )
+                    }
+                }
+        } else {
+            customizationOptionFloatingSheetViewMap
+                ?.get(ThemePickerLockCustomizationOption.SHORTCUTS)
+                ?.let {
+                    ShortcutFloatingSheetBinder.bind(
+                        it,
+                        optionsViewModel,
+                        colorUpdateViewModel,
+                        lifecycleOwner,
+                    )
+                }
+        }
 
         if (!isComposeRefactorEnabled) {
             customizationOptionFloatingSheetViewMap
