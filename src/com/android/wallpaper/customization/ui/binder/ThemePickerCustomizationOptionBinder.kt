@@ -19,6 +19,7 @@ package com.android.wallpaper.customization.ui.binder
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.AdaptiveIconDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -26,6 +27,7 @@ import android.widget.TextView
 import androidx.compose.ui.platform.ComposeView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -59,9 +61,12 @@ import com.android.wallpaper.picker.customization.ui.viewmodel.ColorUpdateViewMo
 import com.android.wallpaper.picker.customization.ui.viewmodel.CustomizationOptionsData
 import com.android.wallpaper.picker.customization.ui.viewmodel.CustomizationOptionsViewModel
 import com.android.wallpaper.picker.customization.ui.viewmodel.CustomizationPickerViewModel2
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -319,14 +324,28 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                 }
 
                 launch {
-                    optionsViewModel.appIconPickerViewModel.summary.collect { description ->
-                        // TODO(b/402161932): create and display app icon preview
-                        optionAppIcons
-                            .requireViewById<View>(R.id.option_entry_icon_container)
-                            .visibility = View.INVISIBLE
+                    var disposableHandle: DisposableHandle? = null
+                    val previewIconPackageName =
+                        view.context.resources.getString(R.string.camera_package)
+                    val appIconDrawable =
+                        ShapeIconViewBinder.loadAppIcon(view.context, previewIconPackageName)
+                    optionsViewModel.appIconPickerViewModel.summary.collect { summary ->
+                        disposableHandle?.dispose()
+                        summary.iconShape?.let {
+                            disposableHandle =
+                                ShapeIconViewBinder.bindPreviewIcon(
+                                    view = optionAppIconsIcon,
+                                    appIconDrawable = appIconDrawable as? AdaptiveIconDrawable,
+                                    shapeIcon = summary.iconShape,
+                                    isThemed = summary.isThemed,
+                                    colorUpdateViewModel = colorUpdateViewModel,
+                                    shouldAnimateColor = isOnMainScreen,
+                                    lifecycleOwner = lifecycleOwner,
+                                )
+                        }
                         TextViewBinder.bind(
                             view = optionAppIconsDescription,
-                            viewModel = description,
+                            viewModel = summary.description,
                         )
                     }
                 }
@@ -395,7 +414,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                                     R.id.option_entry_description
                                 )
                             val lockDescription =
-                                optionPackThemeHome?.findViewById<TextView>(
+                                optionPackThemeLock?.findViewById<TextView>(
                                     R.id.option_entry_description
                                 )
                             if (packThemeData.currentThemePackInfo.title.isNotEmpty()) {
@@ -407,6 +426,27 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                                     packThemeData.currentThemePackInfo.description
                                 lockDescription?.text =
                                     packThemeData.currentThemePackInfo.description
+                            }
+                            if (packThemeData.currentThemePackInfo.thumbnailUri.isNotEmpty()) {
+                                val uri = packThemeData.currentThemePackInfo.thumbnailUri.toUri()
+                                val corner =
+                                    (THUMBNAIL_CORNER_RADIUS *
+                                            view.context.resources.displayMetrics.density)
+                                        .toInt()
+                                optionPackThemeIconHome?.let {
+                                    Glide.with(view.context)
+                                        .load(uri)
+                                        .transform(RoundedCorners(corner))
+                                        .into(it)
+                                    it.colorFilter = null
+                                }
+                                optionPackThemeIconLock?.let {
+                                    Glide.with(view.context)
+                                        .load(uri)
+                                        .transform(RoundedCorners(corner))
+                                        .into(it)
+                                    it.colorFilter = null
+                                }
                             }
                         }
                     }
@@ -535,6 +575,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                                     smallClock.layout.applyPreviewConstraints(cfg, cs)
                                     cs.applyTo(clockHostView)
                                 }
+                                clockViewFactory.updateTimeFormat(clock.clockId)
                             } else {
                                 val clockView =
                                     when (size) {
@@ -601,4 +642,8 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
     }
 
     data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
+
+    companion object {
+        private const val THUMBNAIL_CORNER_RADIUS = 18
+    }
 }
