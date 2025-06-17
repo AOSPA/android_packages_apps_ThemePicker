@@ -12,14 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package com.android.customization.picker.grid.domain.interactor
+package com.android.customization.picker.icon.domain.interactor
 
 import com.android.customization.model.grid.ShapeOptionModel
 import com.android.customization.picker.grid.data.repository.ShapeRepository
-import com.android.customization.picker.themedicon.data.repository.ThemedIconRepository
+import com.android.customization.picker.icon.data.repository.IconStyleRepository
+import com.android.customization.picker.icon.shared.model.IconStyle
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +30,7 @@ class AppIconInteractor
 @Inject
 constructor(
     private val shapeRepository: ShapeRepository,
-    private val themedIconRepository: ThemedIconRepository,
+    private val iconStyleRepository: IconStyleRepository,
 ) {
 
     val shapeOptions = shapeRepository.shapeOptions
@@ -41,12 +41,28 @@ constructor(
     val selectedShapeOption =
         shapeRepository.selectedShapeOption.map { shapeOption -> shapeOption ?: defaultShape }
 
-    val isThemedIconAvailable: Flow<Boolean> = themedIconRepository.isAvailable
+    val isThemedIconAvailable: Flow<Boolean> = iconStyleRepository.isThemedIconAvailable
 
-    val isThemedIconEnabled: Flow<Boolean> = themedIconRepository.isActivated
+    val isThemedIconEnabled: Flow<Boolean> = iconStyleRepository.isThemedIconActivated
+
+    val iconStyles =
+        isThemedIconAvailable.map { isThemedIconAvailable ->
+            // TODO (b/397782741): introduce different icon styles depending on repository
+            var styles = IconStyle.entries.toList()
+            if (!isThemedIconAvailable) styles = styles.filter { it != IconStyle.MONOCHROME }
+            styles
+        }
+
+    val selectedIconStyle =
+        isThemedIconEnabled.map {
+            when (it) {
+                true -> IconStyle.MONOCHROME
+                false -> IconStyle.DEFAULT
+            }
+        }
 
     suspend fun applyThemedIconEnabled(enabled: Boolean) =
-        themedIconRepository.setThemedIconEnabled(enabled)
+        iconStyleRepository.setThemedIconEnabled(enabled)
 
     suspend fun applyShape(shapeKey: String) = shapeRepository.applyShape(shapeKey)
 }
