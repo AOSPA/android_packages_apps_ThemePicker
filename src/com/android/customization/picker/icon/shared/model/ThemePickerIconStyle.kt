@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.wallpaper.customization.ui.viewmodel
+package com.android.customization.picker.icon.shared.model
 
-import com.android.wallpaper.picker.customization.ui.viewmodel.CustomizationOptionsData
+import com.android.themepicker.R
 
-class ThemePickerCustomizationOptionsData(
-    val isGridCustomizationAvailable: Boolean,
-    val isIconStyleAvailable: Boolean,
-    val isShapeAvailable: Boolean,
-) : CustomizationOptionsData {
-    val isIconCustomizationAvailable = isIconStyleAvailable || isShapeAvailable
+enum class ThemePickerIconStyle(override val nameResId: Int) : IconStyle {
+    DEFAULT(R.string.app_icons_style_default),
+    MONOCHROME(R.string.app_icons_style_minimal);
+
+    override fun getIsThemedIcon(): Boolean {
+        return this == MONOCHROME
+    }
+
+    override fun getIsExternalLink(): Boolean {
+        return false
+    }
 }

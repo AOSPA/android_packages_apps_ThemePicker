@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
-package com.android.customization.picker.icon.shared.model
+package com.android.customization.picker.icon.ui.util
 
-import com.android.themepicker.R
+import android.graphics.drawable.Drawable
+import com.android.customization.picker.icon.shared.model.IconStyle
+import javax.inject.Inject
 
-enum class IconStyle(val nameResId: Int) {
-    DEFAULT(R.string.app_icons_style_default),
-    MONOCHROME(R.string.app_icons_style_minimal),
+/**
+ * This is a fake [IconStyleViewUtil]. Only implement the function if it's actually called in a
+ * test.
+ */
+class FakeIconStyleViewUtil @Inject constructor() : IconStyleViewUtil {
+    override fun getDrawable(iconStyle: IconStyle): Drawable {
+        TODO("Not yet implemented")
+    }
+
+    override fun getOnClick(iconStyle: IconStyle): (() -> Unit)? {
+        TODO("Not yet implemented")
+    }
 }

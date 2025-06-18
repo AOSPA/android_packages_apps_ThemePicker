@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -119,6 +120,7 @@ constructor(
         iconStyles.map {
             List(size = it.size, init = { index -> toStyleOptionItemViewModel(it[index]) })
         }
+    val isIconStyleAvailable = iconStyles.map { it.size > 1 }
 
     enum class Tab {
         STYLE,
@@ -142,12 +144,12 @@ constructor(
         }
 
     val tabs: Flow<List<FloatingToolbarTabViewModel>> =
-        combine(isThemedIconAvailable, isShapeOptionsAvailable, selectedTab) {
-            isThemedIconAvailable,
+        combine(isIconStyleAvailable, isShapeOptionsAvailable, selectedTab) {
+            isIconStyleAvailable,
             isShapeOptionsAvailable,
             selectedTab ->
             buildList {
-                if (isThemedIconAvailable) {
+                if (isIconStyleAvailable) {
                     val isSelected = (selectedTab == Tab.STYLE)
                     add(
                         FloatingToolbarTabViewModel(
@@ -293,14 +295,14 @@ constructor(
                         coroutineScope {
                             launch {
                                 overridingIconStyle?.let {
-                                    interactor.applyThemedIconEnabled(it == IconStyle.MONOCHROME)
+                                    interactor.applyThemedIconEnabled(it.getIsThemedIcon())
                                 }
                             }
                             selectedIconStyle.drop(1).take(1).collect {
                                 return@collect
                             }
                             overridingIconStyle?.let {
-                                logger.logThemedIconApplied(it == IconStyle.MONOCHROME)
+                                logger.logThemedIconApplied(it.getIsThemedIcon())
                             }
                         }
                     }
@@ -364,13 +366,19 @@ constructor(
             text = text,
             isSelected = isSelected,
             onClicked =
-                isSelected.map {
-                    if (!it) {
-                        { overridingIconStyle.value = iconStyle }
-                    } else {
-                        null
+                if (iconStyle.getIsExternalLink()) {
+                    // A button is not selectable.
+                    flowOf(null)
+                } else {
+                    isSelected.map {
+                        if (!it) {
+                            { overridingIconStyle.value = iconStyle }
+                        } else {
+                            null
+                        }
                     }
                 },
+            skipOnClickBinding = iconStyle.getIsExternalLink(),
         )
     }
 
