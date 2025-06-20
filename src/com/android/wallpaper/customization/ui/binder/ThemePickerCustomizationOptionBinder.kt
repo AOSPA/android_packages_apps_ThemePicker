@@ -42,6 +42,7 @@ import com.android.customization.picker.clock.ui.view.ClockViewFactory
 import com.android.customization.picker.color.ui.binder.ColorOptionIconBinder2
 import com.android.customization.picker.color.ui.view.ColorOptionIconView2
 import com.android.customization.picker.color.ui.viewmodel.ColorOptionIconViewModel
+import com.android.customization.picker.icon.ui.util.IconStyleViewUtil
 import com.android.customization.picker.settings.ui.binder.ColorContrastSectionViewBinder2
 import com.android.systemui.plugins.clocks.ClockAxisStyle
 import com.android.systemui.shared.Flags
@@ -93,6 +94,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
         navigateToColorContrastSettingsActivity: () -> Unit,
         navigateToLockScreenNotificationsSettingsActivity: () -> Unit,
         navigateToPackThemeActivity: (Intent) -> Unit,
+        iconStyleViewUtil: IconStyleViewUtil,
     ) {
         defaultCustomizationOptionsBinder.bind(
             customizationOptionsData,
@@ -107,6 +109,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
             navigateToColorContrastSettingsActivity,
             navigateToLockScreenNotificationsSettingsActivity,
             navigateToPackThemeActivity,
+            iconStyleViewUtil,
         )
 
         customizationOptionsData as ThemePickerCustomizationOptionsData
@@ -347,6 +350,8 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                             summary.iconShape?.let {
                                 disposableHandle =
                                     optionAppIconsIcon?.let { it1 ->
+                                        // TODO (b/397782741): bind icons correctly for additional
+                                        //  themes
                                         ShapeIconViewBinder.bindPreviewIcon(
                                             view = it1,
                                             appIconDrawable =
@@ -538,6 +543,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                 AppIconFloatingSheetBinder.bind(
                     it,
                     optionsViewModel,
+                    iconStyleViewUtil,
                     colorUpdateViewModel,
                     lifecycleOwner,
                     Dispatchers.IO,
