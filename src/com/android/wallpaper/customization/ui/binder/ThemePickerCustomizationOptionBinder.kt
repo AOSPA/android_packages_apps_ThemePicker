@@ -19,12 +19,14 @@ package com.android.wallpaper.customization.ui.binder
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.graphics.drawable.DrawableCompat
@@ -44,7 +46,7 @@ import com.android.customization.picker.color.ui.view.ColorOptionIconView2
 import com.android.customization.picker.color.ui.viewmodel.ColorOptionIconViewModel
 import com.android.customization.picker.icon.ui.util.IconStyleViewUtil
 import com.android.customization.picker.settings.ui.binder.ColorContrastSectionViewBinder2
-import com.android.systemui.plugins.clocks.ClockAxisStyle
+import com.android.systemui.plugins.keyguard.ui.clocks.ClockAxisStyle
 import com.android.systemui.shared.Flags
 import com.android.themepicker.R
 import com.android.wallpaper.config.BaseFlags
@@ -69,8 +71,11 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.DisposableHandle
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -117,6 +122,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
         customizationOptionsData as ThemePickerCustomizationOptionsData
 
         val isComposeRefactorEnabled = BaseFlags.get().isComposeRefactorEnabled()
+        val isColorPickerUpdateEnabled = BaseFlags.get().isColorPickerUpdateEnabled()
 
         val showPackEntry =
             Settings.Secure.getInt(
@@ -271,6 +277,8 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                 .first { it.first == ThemePickerHomeCustomizationOption.COLOR_CONTRAST }
                 .second
         optionColorContrast.setOnClickListener { navigateToColorContrastSettingsActivity.invoke() }
+        val backgroundScope =
+            CoroutineScope(Dispatchers.IO + Job() + CoroutineName(BACKGROUND_CONTEXT))
 
         ColorUpdateBinder.bind(
             setColor = { color ->
@@ -353,32 +361,66 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
 
                     launch {
                         var disposableHandle: DisposableHandle? = null
-                        val previewIconPackageName =
-                            view.context.resources.getString(R.string.camera_package)
-                        val appIconDrawable =
-                            ShapeIconViewBinder.loadAppIcon(view.context, previewIconPackageName)
-                        optionsViewModel.appIconPickerViewModel.summary.collect { summary ->
-                            disposableHandle?.dispose()
-                            summary.iconShape?.let {
-                                disposableHandle =
-                                    optionAppIconsIcon?.let { it1 ->
-                                        // TODO (b/397782741): bind icons correctly for additional
-                                        //  themes
-                                        ShapeIconViewBinder.bindPreviewIcon(
-                                            view = it1,
-                                            appIconDrawable =
-                                                appIconDrawable as? AdaptiveIconDrawable,
-                                            shapeIcon = summary.iconShape,
-                                            isThemed = summary.isThemed,
-                                            colorUpdateViewModel = colorUpdateViewModel,
-                                            shouldAnimateColor = isOnMainScreen,
-                                            lifecycleOwner = lifecycleOwner,
+                        if (BaseFlags.get().isExtendibleThemeManager()) {
+                            optionsViewModel.appIconPickerViewModel.iconStyleAndShapeSummary
+                                .collect { summary ->
+                                    disposableHandle?.dispose()
+                                    summary.iconShape?.let {
+                                        optionAppIconsIcon?.let { it1 ->
+                                            disposableHandle =
+                                                ShapeIconViewBinder
+                                                    .bindIconStyleAndShapePreviewIcon(
+                                                        view = it1,
+                                                        icon = summary.icon,
+                                                        shapeIcon = summary.iconShape,
+                                                        colorUpdateViewModel = colorUpdateViewModel,
+                                                        shouldAnimateColor = isOnMainScreen,
+                                                        lifecycleOwner = lifecycleOwner,
+                                                    )
+                                        }
+                                    }
+                                    optionAppIconsDescription?.let {
+                                        TextViewBinder.bind(
+                                            view = it,
+                                            viewModel = summary.description,
                                         )
                                     }
-                            }
-                            optionAppIconsDescription?.let {
-                                TextViewBinder.bind(view = it, viewModel = summary.description)
-                            }
+                                }
+                        } else {
+                            val previewIconPackageName =
+                                view.context.resources.getString(R.string.camera_package)
+                            val appIconDrawable =
+                                ShapeIconViewBinder.loadAppIcon(
+                                    view.context,
+                                    previewIconPackageName,
+                                )
+                            optionsViewModel.appIconPickerViewModel.shapeAndThemedIconSummary
+                                .collect { summary ->
+                                    disposableHandle?.dispose()
+                                    summary.iconShape?.let {
+                                        disposableHandle =
+                                            optionAppIconsIcon?.let { it1 ->
+                                                ShapeIconViewBinder
+                                                    .bindShapeAndThemedIconPreviewIcon(
+                                                        view = it1,
+                                                        appIconDrawable =
+                                                            appIconDrawable
+                                                                as? AdaptiveIconDrawable,
+                                                        shapeIcon = summary.iconShape,
+                                                        isThemed = summary.isThemed,
+                                                        colorUpdateViewModel = colorUpdateViewModel,
+                                                        shouldAnimateColor = isOnMainScreen,
+                                                        lifecycleOwner = lifecycleOwner,
+                                                    )
+                                            }
+                                    }
+                                    optionAppIconsDescription?.let {
+                                        TextViewBinder.bind(
+                                            view = it,
+                                            viewModel = summary.description,
+                                        )
+                                    }
+                                }
                         }
                     }
                 }
@@ -479,6 +521,13 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                                         .into(it)
                                     it.colorFilter = null
                                 }
+                            } else {
+                                optionPackThemeIconHome?.setImageResource(
+                                    R.drawable.ic_pack_theme_24px
+                                )
+                                optionPackThemeIconLock?.setImageResource(
+                                    R.drawable.ic_pack_theme_24px
+                                )
                             }
                         }
                     }
@@ -487,14 +536,46 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                             intent ->
                             if (intent != null) {
                                 optionPackThemeHome?.setOnClickListener {
-                                    navigateToPackThemeActivity.invoke(intent)
+                                    backgroundScope.launch {
+                                        if (isActivityAvailable(view.context, intent)) {
+                                            navigateToPackThemeActivity.invoke(intent)
+                                        } else {
+                                            showNoPackThemeIntentErrorMessage(
+                                                lifecycleOwner,
+                                                view,
+                                                optionsViewModel,
+                                            )
+                                        }
+                                    }
                                 }
                                 optionPackThemeLock?.setOnClickListener {
-                                    navigateToPackThemeActivity.invoke(intent)
+                                    backgroundScope.launch {
+                                        if (isActivityAvailable(view.context, intent)) {
+                                            navigateToPackThemeActivity.invoke(intent)
+                                        } else {
+                                            showNoPackThemeIntentErrorMessage(
+                                                lifecycleOwner,
+                                                view,
+                                                optionsViewModel,
+                                            )
+                                        }
+                                    }
                                 }
                             } else {
-                                optionPackThemeHome?.setOnClickListener(null)
-                                optionPackThemeLock?.setOnClickListener(null)
+                                optionPackThemeHome?.setOnClickListener({
+                                    showNoPackThemeIntentErrorMessage(
+                                        lifecycleOwner,
+                                        view,
+                                        optionsViewModel,
+                                    )
+                                })
+                                optionPackThemeLock?.setOnClickListener({
+                                    showNoPackThemeIntentErrorMessage(
+                                        lifecycleOwner,
+                                        view,
+                                        optionsViewModel,
+                                    )
+                                })
                             }
                         }
                     }
@@ -536,7 +617,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                 }
         }
 
-        if (!isComposeRefactorEnabled) {
+        if (!isColorPickerUpdateEnabled) {
             customizationOptionFloatingSheetViewMap
                 ?.get(ThemePickerHomeCustomizationOption.COLORS)
                 ?.let {
@@ -575,6 +656,28 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
 
     // Track the current show clock flag. If it turns from false to true, animate fade-in.
     private var isClockCurrentlyShown: Boolean? = null
+
+    private suspend fun isActivityAvailable(context: Context, intent: Intent): Boolean {
+        val packageManager: PackageManager = context.packageManager
+        val activities =
+            packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+        return activities.isNotEmpty()
+    }
+
+    private fun showNoPackThemeIntentErrorMessage(
+        lifecycleOwner: LifecycleOwner,
+        view: View,
+        optionsViewModel: ThemePickerCustomizationOptionsViewModel,
+    ) {
+        lifecycleOwner.lifecycleScope.launch {
+            Toast.makeText(
+                    view.context,
+                    optionsViewModel.packThemeViewModel.noAppErrorMessage,
+                    Toast.LENGTH_SHORT,
+                )
+                .show()
+        }
+    }
 
     override fun bindClockPreview(
         context: Context,
@@ -716,5 +819,6 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
 
     companion object {
         private const val THUMBNAIL_CORNER_RADIUS = 18
+        private const val BACKGROUND_CONTEXT = "backgroundContext"
     }
 }

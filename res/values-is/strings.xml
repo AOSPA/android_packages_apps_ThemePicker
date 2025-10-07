@@ -135,7 +135,7 @@
     <string name="theme_packs_description" msgid="7214401664119395771">"Lýsing"</string>
     <string name="gird_picker_entry_content_description" msgid="9087651470212293439">"Breyta forritatöflu"</string>
     <string name="wallpaper_color_tab" msgid="1447926591721403840">"Veggfóðurslitir"</string>
-    <string name="wallpaper_color_subheader" msgid="4044464573669965670">"Tákn, texti og fleira passar við liti veggfóðursins"</string>
+    <string name="wallpaper_color_subheader" msgid="4044464573669965670">"Tákn, texti og fleira passa við liti veggfóðursins"</string>
     <string name="wallpaper_color_title" msgid="5687965239180986458">"Veggfóðurslitur"</string>
     <string name="preset_color_tab" msgid="3133391839341329314">"Grunnlitir"</string>
     <string name="preset_color_tab_2" msgid="1444107326712562538">"Aðrir litir"</string>
@@ -144,8 +144,7 @@
     <string name="adaptive_color_title" msgid="1336508599235896205">"Breytilegt"</string>
     <string name="color_picker_title" msgid="6666830057938082864">"Kerfislitir"</string>
     <string name="system_colors_title" msgid="8011422955674152731">"Litir"</string>
-    <!-- no translation found for screen_saver_title (4178511806237734356) -->
-    <skip />
+    <string name="screen_saver_title" msgid="4178511806237734356">"Skjávari"</string>
     <string name="keyguard_slot_name_bottom_start" msgid="8747677880200629719">"Vinstri flýtilykill"</string>
     <string name="keyguard_slot_name_bottom_end" msgid="2525487375680217083">"Hægri flýtilykill"</string>
     <string name="keyguard_affordance_none" msgid="1751643933430782312">"Ekkert"</string>
@@ -177,5 +176,5 @@
     <string name="scroll_backward_and_select" msgid="5472202348434803757">"Strjúktu til hægri til að velja aðra klukku"</string>
     <string name="custom_clocks_label" msgid="8168419717593569347">"Sérsniðnar klukkur"</string>
     <string name="clock_face_width" msgid="5818129719338363570">"Breidd úrskífu"</string>
-    <string name="range_announcement_template" msgid="2996864801083587925">"á bilinu %1$d til %2$d"</string>
+    <string name="slider_state_description_template" msgid="1028160527998877233">"%1$d, svið frá %2$d til %3$d"</string>
 </resources>
