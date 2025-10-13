@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.wallpaper.customization.ui.viewmodel
+package com.android.customization.picker.quickaffordance.ui.viewmodel
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -24,8 +24,6 @@ import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
 import com.android.customization.module.logging.ThemesUserEventLogger
 import com.android.customization.picker.quickaffordance.domain.interactor.KeyguardQuickAffordancePickerInteractor
-import com.android.customization.picker.quickaffordance.ui.viewmodel.KeyguardQuickAffordanceSlotViewModel
-import com.android.customization.picker.quickaffordance.ui.viewmodel.KeyguardQuickAffordanceSummaryViewModel
 import com.android.systemui.shared.keyguard.shared.model.KeyguardQuickAffordanceSlots.SLOT_ID_BOTTOM_END
 import com.android.systemui.shared.keyguard.shared.model.KeyguardQuickAffordanceSlots.SLOT_ID_BOTTOM_START
 import com.android.systemui.shared.quickaffordance.shared.model.KeyguardPreviewConstants.KEYGUARD_QUICK_AFFORDANCE_ID_NONE
@@ -51,7 +49,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -61,10 +58,10 @@ import kotlinx.coroutines.launch
 class KeyguardQuickAffordancePickerViewModel2
 @AssistedInject
 constructor(
+    broadcastDispatcher: BroadcastDispatcher,
     @ApplicationContext private val applicationContext: Context,
     private val quickAffordanceInteractor: KeyguardQuickAffordancePickerInteractor,
     private val logger: ThemesUserEventLogger,
-    private val broadcastDispatcher: BroadcastDispatcher,
     @Assisted private val viewModelScope: CoroutineScope,
     @Assisted initialDeepLinkShortcutSlotId: String?,
 ) {
@@ -87,14 +84,11 @@ constructor(
     /** The ID of the selected slot. */
     val selectedSlotId: StateFlow<String> =
         combine(quickAffordanceInteractor.slots, _selectedSlotId) { slots, selectedSlotIdOrNull ->
-                if (selectedSlotIdOrNull != null) {
-                    slots.first { slot -> slot.id == selectedSlotIdOrNull }
-                } else {
-                    // If we haven't yet selected a new slot locally, default to the first slot.
-                    slots[0]
-                }
+                // If we haven't yet selected a slot locally, default to the first slot.
+                selectedSlotIdOrNull?.let { slots.find { slot -> slot.id == selectedSlotIdOrNull } }
+                    ?: slots.firstOrNull()
             }
-            .map { selectedSlot -> selectedSlot.id }
+            .map { selectedSlot -> selectedSlot?.id ?: "" }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(),
