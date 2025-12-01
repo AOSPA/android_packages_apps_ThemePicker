@@ -164,7 +164,7 @@ constructor(
     enum class Tab {
         STYLE,
         SHAPE,
-        LABEL,
+        NAMES,
     }
 
     private val _selectedTab = MutableStateFlow<Tab?>(null)
@@ -183,7 +183,8 @@ constructor(
                 }
         }
 
-    private val isHideAppLabelsEnabled: Boolean = BaseFlags.get().isHideAppLabelEnabled()
+    private val isHideAppLabelsEnabled: Boolean =
+        BaseFlags.get(applicationContext).isHideAppLabelEnabled()
 
     val tabs: Flow<List<FloatingToolbarTabViewModel>> =
         combine(isIconStyleAvailable, isShapeOptionsAvailable, selectedTab) {
@@ -236,12 +237,12 @@ constructor(
                     )
                 }
                 if (isHideAppLabelsEnabled) {
-                    val isSelected = (selectedTab == Tab.LABEL)
+                    val isSelected = (selectedTab == Tab.NAMES)
                     add(
                         FloatingToolbarTabViewModel(
                             icon =
                                 Icon.Resource(
-                                    res = R.drawable.ic_font_size_filled_24px,
+                                    res = R.drawable.ic_app_names_filled_24px,
                                     contentDescription = Text.Resource(R.string.app_icons_label),
                                 ),
                             text = Text.Resource(R.string.app_names).asString(applicationContext),
@@ -250,7 +251,7 @@ constructor(
                                 if (isSelected) {
                                     null
                                 } else {
-                                    { _selectedTab.value = Tab.LABEL }
+                                    { _selectedTab.value = Tab.NAMES }
                                 },
                         )
                     )
@@ -293,7 +294,7 @@ constructor(
             )
         }
 
-    val iconStyleAndShapeSummary: Flow<AppIconPickerSummaryViewModel> =
+    val iconStyleAndShapeSummary: Flow<AppIconPickerSummaryViewModel2> =
         combine(
             selectedShape,
             selectedIconStyle,
@@ -311,9 +312,11 @@ constructor(
             val selectedIconStyleModel = iconStylesModels.find { it.iconStyle == selectedIconStyle }
             val appIconThemeString =
                 if (isIconStyleAvailable)
-                    selectedIconStyleModel?.nameResId?.let { applicationContext.getString(it) }
+                    selectedIconStyleModel?.iconStyle?.nameResId?.let {
+                        applicationContext.getString(it)
+                    }
                 else null
-            AppIconPickerSummaryViewModel(
+            AppIconPickerSummaryViewModel2(
                 description =
                     Text.Loaded(
                         if (
@@ -332,8 +335,7 @@ constructor(
                         }
                     ),
                 iconShape = selectedShape.payload,
-                icon = selectedIconStyleModel?.icon,
-                isThemed = selectedIconStyleModel?.isThemedIcon ?: false,
+                iconStyleModel = selectedIconStyleModel,
             )
         }
 
@@ -519,7 +521,7 @@ constructor(
                     started = SharingStarted.Lazily,
                     initialValue = false,
                 )
-        val text = Text.Resource(iconStyleModel.nameResId)
+        val text = Text.Resource(iconStyleModel.iconStyle.nameResId)
         return OptionItemViewModel2(
             key = MutableStateFlow(text.asString(applicationContext)),
             payload = iconStyleModel,
