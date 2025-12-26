@@ -26,9 +26,7 @@ import com.android.customization.module.logging.ThemesUserEventLoggerImpl
 import com.android.customization.picker.clock.data.repository.ClockPickerRepository
 import com.android.customization.picker.clock.data.repository.ClockPickerRepositoryImpl
 import com.android.customization.picker.clock.data.repository.ClockRegistryProvider
-import com.android.customization.picker.color.data.repository.ColorPickerRepository
 import com.android.customization.picker.color.data.repository.ColorPickerRepository2
-import com.android.customization.picker.color.data.repository.ColorPickerRepositoryImpl
 import com.android.customization.picker.color.data.repository.ColorPickerRepositoryImpl2
 import com.android.customization.picker.icon.data.repository.IconStyleRepository
 import com.android.customization.picker.icon.data.repository.ThemePickerIconStyleRepository
@@ -44,11 +42,9 @@ import com.android.wallpaper.effects.DefaultEffectsController
 import com.android.wallpaper.effects.EffectsController
 import com.android.wallpaper.module.DefaultExtendedEffectsHelper
 import com.android.wallpaper.module.DefaultPartnerProvider
-import com.android.wallpaper.module.DefaultRecentWallpaperManager
 import com.android.wallpaper.module.DefaultThirdPartyLiveWallpaperModelFactory
 import com.android.wallpaper.module.ExtendedEffectsHelper
 import com.android.wallpaper.module.PartnerProvider
-import com.android.wallpaper.module.RecentWallpaperManager
 import com.android.wallpaper.module.ThirdPartyLiveWallpaperModelFactory
 import com.android.wallpaper.module.WallpaperPreferences
 import com.android.wallpaper.module.logging.UserEventLogger
@@ -110,10 +106,6 @@ abstract class ThemePickerAppModule {
     @Binds
     @Singleton
     abstract fun bindClockPickerRepository(impl: ClockPickerRepositoryImpl): ClockPickerRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindColorPickerRepository(impl: ColorPickerRepositoryImpl): ColorPickerRepository
 
     @Binds
     @Singleton
@@ -250,12 +242,6 @@ abstract class ThemePickerAppModule {
     abstract fun bindWorkspaceCallbackBinder(
         impl: ThemePickerWorkspaceCallbackBinder
     ): WorkspaceCallbackBinder
-
-    @Binds
-    @Singleton
-    abstract fun bindRecentWallpaperManager(
-        impl: DefaultRecentWallpaperManager
-    ): RecentWallpaperManager
 
     @Binds
     @Singleton
