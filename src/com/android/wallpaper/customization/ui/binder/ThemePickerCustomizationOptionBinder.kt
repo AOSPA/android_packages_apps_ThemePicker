@@ -126,9 +126,9 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
 
         customizationOptionsData as ThemePickerCustomizationOptionsData
 
-        val isComposeRefactorEnabled = BaseFlags.get().isComposeRefactorEnabled()
-        val isColorPickerUpdateEnabled = BaseFlags.get().isColorPickerUpdateEnabled()
-        val isColorPickerComposeEnabled = BaseFlags.get().isColorPickerComposeEnabled()
+        val isComposeRefactorEnabled = BaseFlags.get(view.context).isComposeRefactorEnabled()
+        val isColorPickerUpdateEnabled = BaseFlags.get(view.context).isColorPickerUpdateEnabled()
+        val isColorPickerComposeEnabled = BaseFlags.get(view.context).isColorPickerComposeEnabled()
 
         val showPackEntry =
             Settings.Secure.getInt(
@@ -189,7 +189,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
         val optionClockIcon: ImageView = optionClock.requireViewById(R.id.option_entry_icon)
 
         val isKeyguardQuickAffordanceEnabled =
-            BaseFlags.get().isKeyguardQuickAffordanceEnabled(view.context)
+            BaseFlags.get(view.context).isKeyguardQuickAffordanceEnabled(view.context)
         var optionShortcut: View? = null
         var optionShortcutDescription: TextView? = null
         var optionShortcutIcon1: ImageView? = null
@@ -223,23 +223,29 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
 
         var optionPackThemeIconHome: ImageView? = null
         var optionPackThemeIconLock: ImageView? = null
+        var optionPackThemeIconHomeDefault: ImageView? = null
+        var optionPackThemeIconLockDefault: ImageView? = null
         var optionPackThemeHome: View? = null
         var optionPackThemeLock: View? = null
-        if (BaseFlags.get().isPackThemeEnabled() && showPackEntry) {
+        if (BaseFlags.get(view.context).isPackThemeEnabled() && showPackEntry) {
             optionPackThemeHome =
                 homeScreenCustomizationOptionEntries
                     .first { it.first == ThemePickerHomeCustomizationOption.PACK_THEME }
                     .second
+            optionPackThemeIconHomeDefault =
+                optionPackThemeHome.requireViewById(R.id.option_entry_icon_default)
             optionPackThemeIconHome = optionPackThemeHome.requireViewById(R.id.option_entry_icon)
 
             optionPackThemeLock =
                 lockScreenCustomizationOptionEntries
                     .first { it.first == ThemePickerHomeCustomizationOption.PACK_THEME }
                     .second
+            optionPackThemeIconLockDefault =
+                optionPackThemeLock.requireViewById(R.id.option_entry_icon_default)
             optionPackThemeIconLock = optionPackThemeLock.requireViewById(R.id.option_entry_icon)
         }
 
-        if (BaseFlags.get().shouldShowDesktopUi(view.context)) {
+        if (BaseFlags.get(view.context).shouldShowDesktopUi(view.context)) {
             val optionScreenSaverEntry: View =
                 homeScreenCustomizationOptionEntries
                     .first { it.first == ThemePickerHomeCustomizationOption.SCREEN_SAVER }
@@ -298,9 +304,9 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                 if (customizationOptionsData.isGridCustomizationAvailable) {
                     optionGridIcon?.setColorFilter(color)
                 }
-                if (BaseFlags.get().isPackThemeEnabled()) {
-                    optionPackThemeIconHome?.setColorFilter(color)
-                    optionPackThemeIconLock?.setColorFilter(color)
+                if (BaseFlags.get(view.context).isPackThemeEnabled()) {
+                    optionPackThemeIconLockDefault?.setColorFilter(color)
+                    optionPackThemeIconHomeDefault?.setColorFilter(color)
                 }
             },
             color = colorUpdateViewModel.colorOnSurfaceVariant,
@@ -371,23 +377,20 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
 
                     launch {
                         var disposableHandle: DisposableHandle? = null
-                        if (BaseFlags.get().isExtendibleThemeManager()) {
+                        if (BaseFlags.get(view.context).isExtendibleThemeManager()) {
                             optionsViewModel.appIconPickerViewModel.iconStyleAndShapeSummary
                                 .collect { summary ->
                                     disposableHandle?.dispose()
-                                    summary.iconShape?.let {
-                                        optionAppIconsIcon?.let { it1 ->
-                                            disposableHandle =
-                                                ShapeIconViewBinder
-                                                    .bindIconStyleAndShapePreviewIcon(
-                                                        view = it1,
-                                                        icon = summary.icon,
-                                                        shapeIcon = summary.iconShape,
-                                                        colorUpdateViewModel = colorUpdateViewModel,
-                                                        shouldAnimateColor = isOnMainScreen,
-                                                        lifecycleOwner = lifecycleOwner,
-                                                    )
-                                        }
+                                    optionAppIcons?.let { view ->
+                                        disposableHandle =
+                                            iconStyleViewUtil.bindShapeIconPreview(
+                                                view = view,
+                                                iconStyleModel = summary.iconStyleModel,
+                                                shapeIcon = summary.iconShape,
+                                                colorUpdateViewModel = colorUpdateViewModel,
+                                                shouldAnimateColor = isOnMainScreen,
+                                                lifecycleOwner = lifecycleOwner,
+                                            )
                                     }
                                     optionAppIconsDescription?.let {
                                         TextViewBinder.bind(
@@ -490,9 +493,33 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                             }
                         }
                     }
+
+                    launch {
+                        combine(
+                                optionsViewModel.colorPickerViewModel2.overridingColorOption,
+                                optionsViewModel.colorPickerViewModel2.selectedColorOption,
+                                optionsViewModel.darkModeViewModel.overridingIsDarkMode,
+                                ::Triple,
+                            )
+                            .collect { (overridingColor, selectedColor, overridingIsDarkMode) ->
+                                if (overridingColor != null || overridingIsDarkMode != null) {
+                                    val previewColorOption = overridingColor ?: selectedColor
+                                    val previewIsDarkMode =
+                                        overridingIsDarkMode
+                                            ?: view.resources.configuration.isNightModeActive
+                                    previewColorOption?.let {
+                                        colorUpdateViewModel.previewColors(
+                                            previewColorOption.seedColor,
+                                            previewColorOption.style,
+                                            previewIsDarkMode,
+                                        )
+                                    }
+                                } else colorUpdateViewModel.resetPreview()
+                            }
+                    }
                 }
 
-                if (BaseFlags.get().isPackThemeEnabled()) {
+                if (BaseFlags.get(view.context).isPackThemeEnabled()) {
                     launch {
                         optionsViewModel.packThemeViewModel.packThemeData.collect { packThemeData ->
                             optionPackThemeHome?.isEnabled = packThemeData.isEnabled
@@ -550,13 +577,15 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                                         .into(it)
                                     it.colorFilter = null
                                 }
+                                optionPackThemeIconLockDefault?.visibility = View.GONE
+                                optionPackThemeIconHomeDefault?.visibility = View.GONE
+                                optionPackThemeIconLock?.visibility = View.VISIBLE
+                                optionPackThemeIconHome?.visibility = View.VISIBLE
                             } else {
-                                optionPackThemeIconHome?.setImageResource(
-                                    R.drawable.ic_pack_theme_24px
-                                )
-                                optionPackThemeIconLock?.setImageResource(
-                                    R.drawable.ic_pack_theme_24px
-                                )
+                                optionPackThemeIconLockDefault?.visibility = View.VISIBLE
+                                optionPackThemeIconHomeDefault?.visibility = View.VISIBLE
+                                optionPackThemeIconLock?.visibility = View.GONE
+                                optionPackThemeIconHome?.visibility = View.GONE
                             }
                         }
                     }

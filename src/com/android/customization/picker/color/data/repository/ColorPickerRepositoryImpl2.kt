@@ -16,6 +16,7 @@
  */
 package com.android.customization.picker.color.data.repository
 
+import android.app.ThemeManager
 import android.app.WallpaperColors
 import android.app.WallpaperManager
 import android.content.theming.ThemeStyle
@@ -29,14 +30,16 @@ import com.android.customization.model.ResourceConstants
 import com.android.customization.model.color.ColorCustomizationManager
 import com.android.customization.model.color.ColorOption
 import com.android.customization.model.color.ColorOptionImpl
-import com.android.customization.model.color.ColorProvider
+import com.android.customization.model.color.ColorProviderUtil
 import com.android.customization.picker.color.shared.model.ColorType
 import com.android.systemui.monet.ColorScheme
+import com.android.wallpaper.config.BaseFlags
 import com.android.wallpaper.model.Screen
 import com.android.wallpaper.picker.customization.data.content.WallpaperClient
 import com.android.wallpaper.picker.di.modules.BackgroundDispatcher
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -44,6 +47,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -52,10 +56,22 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 class ColorPickerRepositoryImpl2
 @Inject
 constructor(
-    @BackgroundDispatcher private val scope: CoroutineScope,
+    @BackgroundDispatcher scope: CoroutineScope,
+    @BackgroundDispatcher backgroundDispatcher: CoroutineDispatcher,
     private val colorManager: ColorCustomizationManager,
+    private val themeManager: ThemeManager?,
     client: WallpaperClient,
+    baseFlags: BaseFlags,
 ) : ColorPickerRepository2 {
+
+    private val shouldUseThemeService =
+        baseFlags.isColorPickerUpdateEnabled() && themeManager != null
+
+    init {
+        if (shouldUseThemeService) {
+            Log.d(TAG, "Theme service is enabled")
+        }
+    }
 
     private val wallpaperColorsCallback: Flow<Pair<Screen, WallpaperColors?>> =
         callbackFlow {
@@ -72,6 +88,7 @@ constructor(
                 client.addOnColorsChangedListener(listener, Handler(Looper.getMainLooper()))
                 awaitClose { client.removeOnColorsChangedListener(listener) }
             }
+            .flowOn(backgroundDispatcher)
             // Make this a shared flow to make sure only one listener is added.
             .shareIn(scope = scope, started = SharingStarted.WhileSubscribed(), replay = 1)
     private val homeWallpaperColors: Flow<WallpaperColors?> =
@@ -163,13 +180,13 @@ constructor(
         if (seedColorStr != null && !seedColorStr.startsWith("#")) {
             val seedColorInt = "#$seedColorStr".toColorInt()
             builder.lightColors =
-                (colorManager.provider as ColorProvider).getColorPreview(
+                ColorProviderUtil.getColorPreview(
                     ColorScheme(seedColorInt, /* darkTheme= */ false, style),
                     source,
                     /* darkTheme= */ false,
                 )
             builder.darkColors =
-                (colorManager.provider as ColorProvider).getColorPreview(
+                ColorProviderUtil.getColorPreview(
                     ColorScheme(seedColorInt, /* darkTheme= */ true, style),
                     source,
                     /* darkTheme= */ true,

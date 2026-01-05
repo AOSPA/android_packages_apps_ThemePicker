@@ -93,7 +93,7 @@ object ClockFloatingSheetBinder {
         val tabs: FloatingToolbar = view.requireViewById(R.id.floating_toolbar)
         val tabContainer =
             tabs.findViewById<ViewGroup>(com.android.wallpaper.R.id.floating_toolbar_tab_container)
-        val isDesktopUi: Boolean = BaseFlags.get().shouldShowDesktopUi(view.context)
+        val isDesktopUi: Boolean = BaseFlags.get(appContext).shouldShowDesktopUi(view.context)
         ColorUpdateBinder.bind(
             setColor = { color ->
                 DrawableCompat.setTint(DrawableCompat.wrap(tabContainer.background), color)
@@ -337,7 +337,7 @@ object ClockFloatingSheetBinder {
                 R.dimen.clock_axis_control_slider_row_margin_vertical
             )
         lifecycleOwner.lifecycleScope.launch {
-            var currentTab: Tab = Tab.STYLE
+            var currentTab: Tab? = null
             lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.tabs.collect { tabAdapter.submitList(it) } }
 
@@ -379,11 +379,12 @@ object ClockFloatingSheetBinder {
                                     Tab.COLOR -> clockColorContentHeight
                                     Tab.SIZE -> clockSizeContentHeight
                                 }
-                            val currentContent: View =
+                            val currentContent: View? =
                                 when (currentTab) {
                                     Tab.STYLE -> clockStyleContent
                                     Tab.COLOR -> clockColorContent
                                     Tab.SIZE -> clockSizeContent
+                                    else -> null
                                 }
                             val selectedContent: View =
                                 when (selectedTab) {

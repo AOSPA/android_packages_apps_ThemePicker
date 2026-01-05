@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.customization.picker.common.ui.view.SingleRowListItemSpacing
 import com.android.customization.picker.icon.shared.model.IconStyleModel
 import com.android.customization.picker.icon.ui.util.IconStyleViewUtil
-import com.android.customization.picker.icon.ui.view.ShapeTileDrawable
 import com.android.customization.picker.icon.ui.viewmodel.AppIconPickerViewModel.Tab
 import com.android.customization.picker.icon.ui.viewmodel.ShapeIconViewModel
 import com.android.themepicker.R
@@ -43,8 +42,6 @@ import com.android.wallpaper.customization.ui.binder.FloatingSheetHeightAnimatio
 import com.android.wallpaper.customization.ui.binder.SwitchColorBinder
 import com.android.wallpaper.customization.ui.util.ThemePickerCustomizationOptionUtil.ThemePickerHomeCustomizationOption.APP_ICONS
 import com.android.wallpaper.customization.ui.viewmodel.ThemePickerCustomizationOptionsViewModel
-import com.android.wallpaper.picker.common.icon.ui.viewbinder.IconViewBinder
-import com.android.wallpaper.picker.common.icon.ui.viewmodel.Icon
 import com.android.wallpaper.picker.customization.ui.binder.ColorUpdateBinder
 import com.android.wallpaper.picker.customization.ui.view.FloatingToolbar
 import com.android.wallpaper.picker.customization.ui.view.adapter.FloatingToolbarTabAdapter
@@ -70,7 +67,7 @@ object AppIconFloatingSheetBinder {
         val viewModel = optionsViewModel.appIconPickerViewModel
         val isFloatingSheetActive = { optionsViewModel.selectedOption.value == APP_ICONS }
 
-        val isExtendibleThemeManager = BaseFlags.get().isExtendibleThemeManager()
+        val isExtendibleThemeManager = BaseFlags.get(view.context).isExtendibleThemeManager()
         val tabs = view.requireViewById<FloatingToolbar>(R.id.floating_toolbar)
         val tabAdapter: FloatingToolbarTabAdapter?
         if (isExtendibleThemeManager) {
@@ -113,6 +110,7 @@ object AppIconFloatingSheetBinder {
 
         val styleContent = view.requireViewById<View>(R.id.app_icon_style_container)
         val shapeContent = view.requireViewById<View>(R.id.app_shape_container)
+        val labelContent = view.requireViewById<View>(R.id.app_icon_label_container)
 
         val shapeOptionListAdapter =
             createShapeOptionItemAdapter(
@@ -143,10 +141,19 @@ object AppIconFloatingSheetBinder {
         val themedIconEntry = view.requireViewById<ViewGroup>(R.id.themed_icon_toggle_entry)
         val themedIconTitle = view.requireViewById<TextView>(R.id.themed_icon_toggle_title)
         val themedIconBetaLabel = view.requireViewById<TextView>(R.id.themed_icon_beta_title)
+        val showAppLabelsTitle = view.requireViewById<TextView>(R.id.show_app_labels_title)
+        val showAppLabelsSwitch = view.requireViewById<MaterialSwitch>(R.id.show_app_labels_switch)
+        ColorUpdateBinder.bind(
+            setColor = { color -> showAppLabelsTitle.setTextColor(color) },
+            color = colorUpdateViewModel.colorOnSurface,
+            shouldAnimate = isFloatingSheetActive,
+            lifecycleOwner = lifecycleOwner,
+        )
 
         data class FloatingSheetHeightsViewModel(
             val styleContentHeight: Int? = null,
             val shapeContentHeight: Int? = null,
+            val labelContentHeight: Int? = null,
         )
         val floatingSheetHeights: MutableStateFlow<FloatingSheetHeightsViewModel> =
             MutableStateFlow(FloatingSheetHeightsViewModel())
@@ -185,6 +192,23 @@ object AppIconFloatingSheetBinder {
                                     shapeContentHeight = shapeContent.height
                                 )
                             shapeContent.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        }
+                    }
+                }
+            )
+
+            labelContent.viewTreeObserver.addOnGlobalLayoutListener(
+                object : OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        if (
+                            labelContent.height != 0 &&
+                                floatingSheetHeights.value.labelContentHeight != labelContent.height
+                        ) {
+                            floatingSheetHeights.value =
+                                floatingSheetHeights.value.copy(
+                                    labelContentHeight = labelContent.height
+                                )
+                            labelContent.viewTreeObserver.removeOnGlobalLayoutListener(this)
                         }
                     }
                 }
@@ -237,9 +261,11 @@ object AppIconFloatingSheetBinder {
                         var currentTab: Tab? = null
                         combine(floatingSheetHeights, viewModel.selectedTab, ::Pair).collect {
                             (heights, selectedTab) ->
-                            val (styleContentHeight, shapeContentHeight) = heights
+                            val (styleContentHeight, shapeContentHeight, labelContentHeight) =
+                                heights
                             styleContentHeight ?: return@collect
                             shapeContentHeight ?: return@collect
+                            labelContentHeight ?: return@collect
                             selectedTab ?: return@collect
 
                             styleContent.isVisible = (currentTab == Tab.STYLE)
@@ -250,17 +276,20 @@ object AppIconFloatingSheetBinder {
                                 when (selectedTab) {
                                     Tab.STYLE -> styleContentHeight
                                     Tab.SHAPE -> shapeContentHeight
+                                    Tab.NAMES -> labelContentHeight
                                 } + 2 * verticalPadding
                             val currentContent: View? =
                                 when (currentTab) {
                                     Tab.STYLE -> styleContent
                                     Tab.SHAPE -> shapeContent
+                                    Tab.NAMES -> labelContent
                                     else -> null
                                 }
                             val selectedContent: View =
                                 when (selectedTab) {
                                     Tab.STYLE -> styleContent
                                     Tab.SHAPE -> shapeContent
+                                    Tab.NAMES -> labelContent
                                 }
                             FloatingSheetHeightAnimationBinder.bind(
                                 floatingSheetContainer,
@@ -270,6 +299,28 @@ object AppIconFloatingSheetBinder {
                                 selectedContent,
                             )
                             currentTab = selectedTab
+                        }
+                    }
+
+                    launch {
+                        var switchBinding: SwitchColorBinder.Binding? = null
+                        viewModel.previewingShouldShowAppLabels.collect {
+                            showAppLabelsSwitch.isChecked = it
+                            switchBinding?.destroy()
+                            switchBinding =
+                                SwitchColorBinder.bind(
+                                    switch = showAppLabelsSwitch,
+                                    isChecked = it,
+                                    colorUpdateViewModel = colorUpdateViewModel,
+                                    shouldAnimateColor = isFloatingSheetActive,
+                                    lifecycleOwner = lifecycleOwner,
+                                )
+                        }
+                    }
+
+                    launch {
+                        viewModel.toggleShouldShowAppLabels.collect {
+                            showAppLabelsSwitch.setOnCheckedChangeListener { _, _ -> it.invoke() }
                         }
                     }
                 } else {
@@ -377,45 +428,13 @@ object AppIconFloatingSheetBinder {
             lifecycleOwner = lifecycleOwner,
             backgroundDispatcher = backgroundDispatcher,
             bindPayload = { view: View, iconStyleModel: IconStyleModel ->
-                val optionIcon = view.requireViewById<ViewGroup>(R.id.option_icon)
-                val buttonIcon = view.requireViewById<ViewGroup>(R.id.button_icon)
-                val icon = iconStyleModel.icon
-                if (iconStyleModel.isExternalLink) {
-                    optionIcon.visibility = View.GONE
-                    buttonIcon.visibility = View.VISIBLE
-                    val imageView = view.requireViewById<ImageView>(R.id.button_foreground)
-                    icon?.let { IconViewBinder.bind(imageView, it) }
-                    view.setOnClickListener {
-                        iconStyleViewUtil.getOnClick(iconStyleModel.iconStyle)?.invoke()
-                    }
-                } else {
-                    optionIcon.visibility = View.VISIBLE
-                    buttonIcon.visibility = View.GONE
-                    val imageView =
-                        view.requireViewById<ImageView>(com.android.wallpaper.R.id.foreground)
-                    icon?.let { IconViewBinder.bind(imageView, it) }
-                }
-                // If the icon is a themed icon, bind its foreground and background color
-                val disposableHandle =
-                    if (iconStyleModel.isThemedIcon) {
-                        ((icon as? Icon.Loaded)?.drawable as? ShapeTileDrawable)?.let {
-                            ShapeIconViewBinder.bindPreviewIconColor(
-                                shapeTileDrawable = it,
-                                colorUpdateViewModel = colorUpdateViewModel,
-                                shouldAnimateColor = shouldAnimateColor,
-                                lifecycleOwner = lifecycleOwner,
-                            )
-                        }
-                    } else if (iconStyleModel.isExternalLink) {
-                        ShapeIconViewBinder.bindButtonIconColor(
-                            foreground = buttonIcon.requireViewById(R.id.button_foreground),
-                            background = buttonIcon.requireViewById(R.id.button_background),
-                            colorUpdateViewModel = colorUpdateViewModel,
-                            shouldAnimateColor = shouldAnimateColor,
-                            lifecycleOwner = lifecycleOwner,
-                        )
-                    } else null
-                return@OptionItemAdapter2 disposableHandle
+                return@OptionItemAdapter2 iconStyleViewUtil.bindIconOptionView(
+                    view,
+                    iconStyleModel,
+                    colorUpdateViewModel,
+                    shouldAnimateColor,
+                    lifecycleOwner,
+                )
             },
             colorUpdateViewModel = WeakReference(colorUpdateViewModel),
             shouldAnimateColor = shouldAnimateColor,

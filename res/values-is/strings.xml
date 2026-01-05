@@ -34,7 +34,7 @@
     <string name="clock_color_orange" msgid="4175805201144275804">"Appelsínugulur"</string>
     <string name="clock_color_yellow" msgid="7391699163247349977">"Gulur"</string>
     <string name="clock_color_green" msgid="1991157556500156596">"Grænn"</string>
-    <string name="clock_color_blue" msgid="4037792003465759149">"BLÁR"</string>
+    <string name="clock_color_blue" msgid="4037792003465759149">"Blár"</string>
     <string name="clock_color_indigo" msgid="8910855386698452917">"Dimmfjólublár"</string>
     <string name="clock_color_violet" msgid="3454503847169375826">"Fjólublár"</string>
     <string name="clock_color_gray" msgid="9221530636948859231">"Grár"</string>
@@ -60,8 +60,12 @@
     <string name="app_icons_theme_default" msgid="4773453045331265070">"sjálfgefið"</string>
     <string name="app_icons_theme_themed" msgid="6539464818104931856">"í þema"</string>
     <string name="app_icons_style_default" msgid="2568057806991656437">"Sjálfgefið"</string>
-    <string name="app_icons_style_minimal" msgid="4905227469969513136">"Minimalískt"</string>
+    <string name="app_icons_style_minimal" msgid="4905227469969513136">"Mínimalískt"</string>
     <string name="app_icons_shape" msgid="2539949450435849188">"Form"</string>
+    <string name="app_icons_label" msgid="394863025501627247">"Merki"</string>
+    <string name="app_labels" msgid="4290052401987798752">"Forritsmerki"</string>
+    <string name="app_names" msgid="708691253698583169">"Heiti"</string>
+    <string name="show_app_names" msgid="522703901790555973">"Sýna heiti forrita"</string>
     <string name="app_icons_style" msgid="993356162262531521">"Stíll"</string>
     <string name="apply_theme_btn" msgid="6293081192321303991">"Nota"</string>
     <string name="edit_custom_theme_lbl" msgid="5211377705710775224">"Ýttu til að breyta"</string>
