@@ -20,7 +20,7 @@ import android.util.Log
 import com.android.customization.model.color.ColorOption
 import com.android.customization.model.color.ColorOptionImpl
 import com.android.customization.module.logging.ThemesUserEventLogger
-import com.android.customization.picker.color.domain.interactor.ColorPickerInteractor2
+import com.android.customization.picker.color.domain.interactor.ColorPickerInteractor
 import com.android.customization.picker.color.shared.model.ColorType
 import com.android.themepicker.R
 import com.android.wallpaper.picker.common.icon.ui.viewmodel.Icon
@@ -48,12 +48,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 /** Models UI state for a color picker experience. */
-class ColorPickerViewModel2
+class ColorPickerViewModel
 @AssistedInject
 constructor(
     @ApplicationContext context: Context,
     private val colorUpdateViewModel: ColorUpdateViewModel,
-    private val interactor: ColorPickerInteractor2,
+    private val interactor: ColorPickerInteractor,
     private val logger: ThemesUserEventLogger,
     @Assisted private val viewModelScope: CoroutineScope,
 ) {
@@ -218,17 +218,29 @@ constructor(
             allColorOptions: Map<ColorType, List<OptionItemViewModel2<ColorOptionIconViewModel>>>,
             selectedColorTypeIdOrNull ->
             val selectedColorTypeId = selectedColorTypeIdOrNull ?: ColorType.WALLPAPER_COLOR
-            allColorOptions[selectedColorTypeId]!!
+            allColorOptions[selectedColorTypeId] ?: emptyList()
         }
+
+    enum class Screen {
+        LANDING,
+        VARIANT_PICKER,
+    }
+
+    private val _currentScreen = MutableStateFlow(Screen.LANDING)
+    val currentScreen = _currentScreen.asStateFlow()
+
+    fun setScreen(screen: Screen) {
+        _currentScreen.value = screen
+    }
 
     @ViewModelScoped
     @AssistedFactory
     interface Factory {
-        fun create(viewModelScope: CoroutineScope): ColorPickerViewModel2
+        fun create(viewModelScope: CoroutineScope): ColorPickerViewModel
     }
 
     companion object {
-        const val TAG = "ColorPickerViewModel2"
+        const val TAG = "ColorPickerViewModel"
         const val COLOR_UPDATE_TIMEOUT_MILLIS = 3000L
     }
 }

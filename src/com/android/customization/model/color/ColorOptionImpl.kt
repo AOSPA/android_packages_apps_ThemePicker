@@ -37,7 +37,8 @@ class ColorOptionImpl(
     index: Int,
     private val previewInfo: PreviewInfo,
     val type: ColorType,
-) : ColorOption(title, overlayPackages, isDefault, seedColor, style, index) {
+    isThemeServiceEnabled: Boolean = false,
+) : ColorOption(title, overlayPackages, isDefault, seedColor, style, index, isThemeServiceEnabled) {
 
     class PreviewInfo(@ColorInt val lightColors: IntArray, @ColorInt val darkColors: IntArray) :
         ColorOption.PreviewInfo {
@@ -52,7 +53,7 @@ class ColorOptionImpl(
     }
 
     override fun getLayoutResId(): Int {
-        return R.layout.color_option2
+        return R.layout.color_option
     }
 
     override fun getPreviewInfo(): PreviewInfo {
@@ -92,6 +93,7 @@ class ColorOptionImpl(
         var index = 0
         var packages: MutableMap<String, String?> = HashMap()
         var type = ColorType.WALLPAPER_COLOR
+        var isThemeServiceEnabled = false
 
         fun build(): ColorOptionImpl {
             return ColorOptionImpl(
@@ -104,6 +106,7 @@ class ColorOptionImpl(
                 index,
                 createPreviewInfo(),
                 type,
+                isThemeServiceEnabled,
             )
         }
 

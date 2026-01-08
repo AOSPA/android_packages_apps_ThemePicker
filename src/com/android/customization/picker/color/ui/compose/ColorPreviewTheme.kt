@@ -36,22 +36,30 @@ import com.google.ux.material.libmonet.dynamiccolor.DynamicScheme
 import com.google.ux.material.libmonet.dynamiccolor.MaterialDynamicColors
 
 @Immutable
-interface ColorTransitionData {
+interface CustomColorScheme {
     val primary: Color
+    val onPrimary: Color
+    val onPrimaryFixedVariant: Color
+    val secondaryContainer: Color
+    val onSecondaryContainer: Color
     val surfaceBright: Color
     val onSurface: Color
     val onSurfaceVariant: Color
 }
 
-val defaultColorTransitionData =
-    object : ColorTransitionData {
+val defaultCustomColorScheme =
+    object : CustomColorScheme {
         override val primary: Color = Color.Transparent
+        override val onPrimary: Color = Color.Transparent
+        override val onPrimaryFixedVariant: Color = Color.Transparent
+        override val secondaryContainer: Color = Color.Transparent
+        override val onSecondaryContainer: Color = Color.Transparent
         override val surfaceBright: Color = Color.Transparent
         override val onSurface: Color = Color.Transparent
         override val onSurfaceVariant: Color = Color.Transparent
     }
 
-val LocalAnimatedColorScheme = compositionLocalOf { defaultColorTransitionData }
+val LocalAnimatedColorScheme = compositionLocalOf { defaultCustomColorScheme }
 
 @Composable
 fun ColorPreviewTheme(scheme: DynamicScheme?, content: @Composable () -> Unit) {
@@ -71,15 +79,24 @@ fun ColorPreviewTheme(scheme: DynamicScheme?, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun updateTransitionData(colorScheme: ColorScheme): ColorTransitionData {
+fun updateTransitionData(colorScheme: ColorScheme): CustomColorScheme {
     val transition = updateTransition(colorScheme)
     val primary = transition.animateThemeColor { state -> state.primary }
+    val onPrimary = transition.animateThemeColor { state -> state.onPrimary }
+    val onPrimaryFixedVariant =
+        transition.animateThemeColor { state -> state.onPrimaryFixedVariant }
+    val secondaryContainer = transition.animateThemeColor { state -> state.secondaryContainer }
+    val onSecondaryContainer = transition.animateThemeColor { state -> state.onSecondaryContainer }
     val surfaceBright = transition.animateThemeColor { state -> state.surfaceBright }
     val onSurface = transition.animateThemeColor { state -> state.onSurface }
     val onSurfaceVariant = transition.animateThemeColor { state -> state.onSurfaceVariant }
     return remember(transition) {
-        object : ColorTransitionData {
+        object : CustomColorScheme {
             override val primary: Color by primary
+            override val onPrimary: Color by onPrimary
+            override val onPrimaryFixedVariant: Color by onPrimaryFixedVariant
+            override val secondaryContainer: Color by secondaryContainer
+            override val onSecondaryContainer: Color by onSecondaryContainer
             override val surfaceBright: Color by surfaceBright
             override val onSurface: Color by onSurface
             override val onSurfaceVariant: Color by onSurfaceVariant

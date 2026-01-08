@@ -13,10 +13,16 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<!-- Content description is set programmatically on the parent FrameLayout -->
-<com.android.customization.picker.color.ui.view.ColorOptionIconView2
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@id/background"
-    android:layout_width="@dimen/floating_sheet_color_option_size"
-    android:layout_height="@dimen/floating_sheet_color_option_size"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
+    <com.android.customization.picker.color.ui.view.ColorOptionIconView
+        android:layout_width="@dimen/floating_sheet_color_option_size"
+        android:layout_height="@dimen/floating_sheet_color_option_size"/>
+
+    <com.android.customization.picker.color.ui.view.ColorOptionIconView
+        android:layout_width="@dimen/floating_sheet_color_option_size"
+        android:layout_height="@dimen/floating_sheet_color_option_size"/>
+</LinearLayout>

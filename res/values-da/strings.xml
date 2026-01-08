@@ -109,7 +109,7 @@
     <string name="icon_component_title" msgid="5779787138399083903">"Vælg ikoner"</string>
     <string name="color_component_title" msgid="1194089273921078816">"Vælg farve"</string>
     <string name="shape_component_title" msgid="8366847436022025538">"Vælg form"</string>
-    <string name="name_component_title" msgid="532425087968663437">"Giv din typografi et navn"</string>
+    <string name="name_component_title" msgid="532425087968663437">"Giv din stil et navn"</string>
     <string name="icon_component_label" msgid="2625784884001407944">"Ikoner <xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="delete_custom_theme_confirmation" msgid="4452137183628769394">"Vil du slette din tilpassede stil?"</string>
     <string name="delete_custom_theme_button" msgid="5102462988130208824">"Slet"</string>
@@ -171,6 +171,8 @@
     <string name="content_description_neutral_color_option" msgid="3385443834001275301">"Primært neutralt tema"</string>
     <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"Primært farverigt tema"</string>
     <string name="content_description_expressive_color_option" msgid="6081295313456341282">"Primært varieret tema"</string>
+    <string name="color_variant_editor_apply" msgid="6735218825751029812">"Anvend ændring af temastil"</string>
+    <string name="color_variant_editor_revert" msgid="1786509144393262567">"Fortryd ændring af temastil"</string>
     <string name="content_description_default_color_option" msgid="7011899327541080695">"Standardfarve"</string>
     <string name="content_description_color_option" msgid="4169813692012119578">"Farvevalg <xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="scroll_forward_and_select" msgid="6156132388656395769">"Stryg til venstre for at vælge en anden urskive"</string>
