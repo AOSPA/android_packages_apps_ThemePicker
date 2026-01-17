@@ -68,11 +68,11 @@ import com.android.compose.theme.PlatformTheme
 import com.android.customization.model.color.ColorOption
 import com.android.customization.picker.color.shared.model.ColorType
 import com.android.customization.picker.color.ui.viewmodel.ColorOptionIconViewModel
-import com.android.customization.picker.color.ui.viewmodel.ColorOptionViewModel
 import com.android.customization.picker.color.ui.viewmodel.ColorPickerViewModel
 import com.android.customization.picker.mode.ui.viewmodel.DarkModeViewModel
 import com.android.systemui.monet.ColorScheme
 import com.android.themepicker.R
+import com.android.wallpaper.picker.option.ui.viewmodel.OptionItemViewModel2
 import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -83,9 +83,9 @@ fun ColorFloatingSheet(
     colorPickerViewModel: ColorPickerViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val previewingColorOption: ColorOption? by
+    val previewingColorOptionState: ColorOption? by
         colorPickerViewModel.previewingColorOption.collectAsStateWithLifecycle(initialValue = null)
-    val previewingIsDarkMode: Boolean by
+    val previewingIsDarkModeState: Boolean by
         darkModeViewModel.previewingIsDarkMode.collectAsStateWithLifecycle(initialValue = false)
     val screen: ColorPickerViewModel.Screen by
         colorPickerViewModel.currentScreen.collectAsStateWithLifecycle()
@@ -93,21 +93,15 @@ fun ColorFloatingSheet(
         darkModeViewModel.toggleDarkMode.collectAsStateWithLifecycle(initialValue = {})
     val isDarkModeToggleEnabled: Boolean by
         darkModeViewModel.isEnabled.collectAsStateWithLifecycle(initialValue = false)
-    val colorSeedOptions: Map<ColorType, List<ColorOptionViewModel>> by
-        colorPickerViewModel.colorSeedOptions.collectAsStateWithLifecycle(initialValue = emptyMap())
-    val previewingColorOptionKey: String? by
-        colorPickerViewModel.previewingColorOptionKey.collectAsStateWithLifecycle(
-            initialValue = null
-        )
-    val previewingStyle: Int? by
-        colorPickerViewModel.previewingStyle.collectAsStateWithLifecycle(initialValue = null)
+    val allColorOptions: Map<ColorType, List<OptionItemViewModel2<ColorOptionIconViewModel>>> by
+        colorPickerViewModel.allColorOptions.collectAsStateWithLifecycle(initialValue = emptyMap())
+    val styleOptions = colorPickerViewModel.styleOptions.map { StyleBounceable(it) }
 
     PlatformTheme {
         val scheme =
-            remember(previewingColorOption, previewingIsDarkMode, previewingStyle) {
-                previewingColorOption?.let {
-                    ColorScheme(it.seedColor, previewingIsDarkMode, previewingStyle ?: it.style)
-                        .materialScheme
+            remember(previewingColorOptionState, previewingIsDarkModeState) {
+                previewingColorOptionState?.let {
+                    ColorScheme(it.seedColor, previewingIsDarkModeState, it.style).materialScheme
                 }
             }
 
@@ -119,11 +113,10 @@ fun ColorFloatingSheet(
                 when (value) {
                     ColorPickerViewModel.Screen.LANDING ->
                         ColorFloatingSheetLanding(
-                            isDarkMode = previewingIsDarkMode,
+                            isDarkMode = previewingIsDarkModeState,
                             toggleIsDarkMode = toggleIsDarkMode,
                             isDarkModeToggleEnabled = isDarkModeToggleEnabled,
-                            colorSeedOptions = colorSeedOptions,
-                            selectedColorSeedKey = previewingColorOptionKey,
+                            allColorOptions = allColorOptions,
                             navigateToVariantPicker = {
                                 colorPickerViewModel.setScreen(
                                     ColorPickerViewModel.Screen.VARIANT_PICKER
@@ -133,11 +126,9 @@ fun ColorFloatingSheet(
                         )
                     ColorPickerViewModel.Screen.VARIANT_PICKER ->
                         ColorVariantPicker(
-                            styleOptions = colorPickerViewModel.styleOptions,
-                            selectedOption = previewingStyle,
-                            onClick = colorPickerViewModel::onStyleOptionClick,
-                            onCancel = colorPickerViewModel::cancelStyleOptionSelection,
-                            onConfirm = colorPickerViewModel::confirmStyleOptionSelection,
+                            styleOptions = styleOptions,
+                            previewingSeedColor = previewingColorOptionState?.seedColor,
+                            previewingIsDarkMode = previewingIsDarkModeState,
                             navigateToLanding = {
                                 colorPickerViewModel.setScreen(ColorPickerViewModel.Screen.LANDING)
                             },
@@ -154,8 +145,7 @@ fun ColorFloatingSheetLanding(
     isDarkMode: Boolean,
     toggleIsDarkMode: () -> Unit,
     isDarkModeToggleEnabled: Boolean,
-    colorSeedOptions: Map<ColorType, List<ColorOptionViewModel>>,
-    selectedColorSeedKey: String?,
+    allColorOptions: Map<ColorType, List<OptionItemViewModel2<ColorOptionIconViewModel>>>,
     navigateToVariantPicker: () -> Unit,
     modifier: Modifier,
 ) {
@@ -166,7 +156,7 @@ fun ColorFloatingSheetLanding(
             val firstVisibleIndex = lazyListState.firstVisibleItemIndex
             var startIdx = 0
             var endIdx = 0
-            for (entries in colorSeedOptions.entries) {
+            for (entries in allColorOptions.entries) {
                 endIdx += entries.value.size
                 if (firstVisibleIndex in startIdx..<endIdx) {
                     return@derivedStateOf when (entries.key) {
@@ -214,7 +204,7 @@ fun ColorFloatingSheetLanding(
                 contentPadding = PaddingValues(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                colorSeedOptions.values.forEachIndexed { colorTypeIdx, colorList ->
+                allColorOptions.values.forEachIndexed { colorTypeIdx, colorList ->
                     if (colorTypeIdx != 0 && colorList.isNotEmpty()) {
                         item { OptionListGroupDivider() }
                     }
@@ -222,7 +212,6 @@ fun ColorFloatingSheetLanding(
                         ColorSeedOption(
                             isDarkMode = isDarkMode,
                             optionItem = option,
-                            isSelected = option.key == selectedColorSeedKey,
                             navigateToVariantPicker = navigateToVariantPicker,
                             modifier =
                                 Modifier.size(
@@ -297,24 +286,26 @@ fun OptionListGroupDivider(modifier: Modifier = Modifier) {
 @Composable
 fun ColorSeedOption(
     isDarkMode: Boolean,
-    optionItem: ColorOptionViewModel,
-    isSelected: Boolean,
+    optionItem: OptionItemViewModel2<ColorOptionIconViewModel>,
     navigateToVariantPicker: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colorScheme: CustomColorScheme = LocalAnimatedColorScheme.current
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
-    val colorIcon: ColorOptionIconViewModel = optionItem.icon
+    val colorIcon: ColorOptionIconViewModel? = optionItem.payload
+    val onClickState: (() -> Unit)? by
+        optionItem.onClicked.collectAsStateWithLifecycle(initialValue = null)
+    val isSelectedState: Boolean by optionItem.isSelected.collectAsStateWithLifecycle()
 
     Box(modifier = modifier) {
         ColorOption(
             modifier = modifier,
-            isSelected = isSelected,
+            isSelected = isSelectedState,
             onClick = {
-                if (isSelected) {
+                if (isSelectedState) {
                     navigateToVariantPicker()
                 } else {
-                    optionItem.onClick?.invoke()
+                    onClickState?.invoke()
                     coroutineScope.launch { optionItem.clickBounceAnimate() }
                 }
             },
@@ -322,50 +313,52 @@ fun ColorSeedOption(
             // Round up width to prevent empty pixels between quadrants in bounce
             // animation.
             val quadrantSize = Size(ceil(size.width / 2f), size.height / 2f)
-            colorIcon?.let {
-                drawRect(
-                    color =
-                        if (isDarkMode) {
-                            Color(it.darkThemeColor0)
-                        } else {
-                            Color(it.lightThemeColor0)
-                        },
-                    size = quadrantSize,
-                )
-                drawRect(
-                    color =
-                        if (isDarkMode) {
-                            Color(it.darkThemeColor1)
-                        } else {
-                            Color(it.lightThemeColor1)
-                        },
-                    topLeft = Offset(x = size.width / 2f, y = 0f),
-                    size = quadrantSize,
-                )
-                drawRect(
-                    color =
-                        if (isDarkMode) {
-                            Color(it.darkThemeColor2)
-                        } else {
-                            Color(it.lightThemeColor2)
-                        },
-                    topLeft = Offset(x = 0f, y = size.height / 2f),
-                    size = quadrantSize,
-                )
-                drawRect(
-                    color =
-                        if (isDarkMode) {
-                            Color(it.darkThemeColor3)
-                        } else {
-                            Color(it.lightThemeColor3)
-                        },
-                    topLeft = Offset(x = size.width / 2f, y = size.height / 2f),
-                    size = quadrantSize,
-                )
+            onDrawBehind {
+                colorIcon?.let {
+                    drawRect(
+                        color =
+                            if (isDarkMode) {
+                                Color(it.darkThemeColor0)
+                            } else {
+                                Color(it.lightThemeColor0)
+                            },
+                        size = quadrantSize,
+                    )
+                    drawRect(
+                        color =
+                            if (isDarkMode) {
+                                Color(it.darkThemeColor1)
+                            } else {
+                                Color(it.lightThemeColor1)
+                            },
+                        topLeft = Offset(x = size.width / 2f, y = 0f),
+                        size = quadrantSize,
+                    )
+                    drawRect(
+                        color =
+                            if (isDarkMode) {
+                                Color(it.darkThemeColor2)
+                            } else {
+                                Color(it.lightThemeColor2)
+                            },
+                        topLeft = Offset(x = 0f, y = size.height / 2f),
+                        size = quadrantSize,
+                    )
+                    drawRect(
+                        color =
+                            if (isDarkMode) {
+                                Color(it.darkThemeColor3)
+                            } else {
+                                Color(it.lightThemeColor3)
+                            },
+                        topLeft = Offset(x = size.width / 2f, y = size.height / 2f),
+                        size = quadrantSize,
+                    )
+                }
             }
         }
 
-        if (isSelected) {
+        if (isSelectedState) {
             // Edit icon
             Box(
                 modifier =
