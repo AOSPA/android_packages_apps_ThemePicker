@@ -16,26 +16,39 @@
 
 package com.android.customization.picker.color.ui.compose
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +59,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,87 +68,55 @@ import com.android.compose.theme.PlatformTheme
 import com.android.customization.model.color.ColorOption
 import com.android.customization.picker.color.shared.model.ColorType
 import com.android.customization.picker.color.ui.viewmodel.ColorOptionIconViewModel
+import com.android.customization.picker.color.ui.viewmodel.ColorPickerViewModel
+import com.android.customization.picker.mode.ui.viewmodel.DarkModeViewModel
 import com.android.systemui.monet.ColorScheme
 import com.android.themepicker.R
 import com.android.wallpaper.picker.option.ui.viewmodel.OptionItemViewModel2
 import kotlin.math.ceil
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
 fun ColorFloatingSheet(
-    isDarkMode: Flow<Boolean>,
-    colorOptions: Flow<Map<ColorType, List<OptionItemViewModel2<ColorOptionIconViewModel>>>>,
-    previewingColorOption: Flow<ColorOption?>,
+    darkModeViewModel: DarkModeViewModel,
+    colorPickerViewModel: ColorPickerViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val colorOptionState by colorOptions.collectAsStateWithLifecycle(initialValue = emptyMap())
-    val darkModeState by isDarkMode.collectAsStateWithLifecycle(initialValue = false)
-    val previewingColorOptionState by
-        previewingColorOption.collectAsStateWithLifecycle(initialValue = null)
+    val previewingColorOptionState: ColorOption? by
+        colorPickerViewModel.previewingColorOption.collectAsStateWithLifecycle(initialValue = null)
+    val previewingDarkModeState: Boolean by
+        darkModeViewModel.previewingIsDarkMode.collectAsStateWithLifecycle(initialValue = false)
+    val screen: ColorPickerViewModel.Screen by
+        colorPickerViewModel.currentScreen.collectAsStateWithLifecycle()
 
-    // TODO (b/391927276): figure out how to animate color scheme changes
     PlatformTheme {
-        // Set color scheme when wallpaper bitmap is selected or changed.
         val scheme =
-            previewingColorOptionState?.let {
-                ColorScheme(it.seedColor, darkModeState, it.style).materialScheme
+            remember(previewingColorOptionState, previewingDarkModeState) {
+                previewingColorOptionState?.let {
+                    ColorScheme(it.seedColor, previewingDarkModeState, it.style).materialScheme
+                }
             }
 
         ColorPreviewTheme(scheme) {
-            val colorScheme = LocalAnimatedColorScheme.current
-            Box(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .clip(shape = RoundedCornerShape(28.dp))
-                        .drawBehind { drawRect(colorScheme.surfaceBright) }
-            ) {
-                Column(modifier = Modifier.padding(vertical = 20.dp)) {
-                    Text(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        text = stringResource(R.string.wallpaper_color_tab),
-                        color = colorScheme.onSurface,
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    LazyRow(
-                        verticalAlignment = Alignment.CenterVertically,
-                        contentPadding = PaddingValues(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
-                    ) {
-                        ColorType.entries.forEachIndexed { colorTypeIdx, colorType ->
-                            colorOptionState[colorType]?.let { colorList ->
-                                if (colorTypeIdx != 0 && colorList.isNotEmpty()) {
-                                    item { OptionListGroupDivider() }
-                                }
-                                itemsIndexed(colorList) { idx, option ->
-                                    ColorOptionIcon(
-                                        isDarkMode = darkModeState,
-                                        optionItem = option,
-                                        modifier =
-                                            Modifier.size(
-                                                    dimensionResource(
-                                                        R.dimen.floating_sheet_color_option_size
-                                                    )
-                                                )
-                                                .bounceable(
-                                                    bounceable = colorList[idx],
-                                                    previousBounceable =
-                                                        if (idx > 0) colorList[idx - 1] else null,
-                                                    nextBounceable =
-                                                        if (idx < colorList.lastIndex)
-                                                            colorList[idx + 1]
-                                                        else null,
-                                                    orientation = Horizontal,
-                                                ),
-                                    )
-                                }
-                            }
-                        }
-                    }
+            AnimatedContent(
+                targetState = screen,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+            ) { value ->
+                when (value) {
+                    ColorPickerViewModel.Screen.LANDING ->
+                        ColorFloatingSheetLanding(
+                            colorPickerViewModel = colorPickerViewModel,
+                            darkModeViewModel = darkModeViewModel,
+                            modifier = modifier,
+                        )
+                    ColorPickerViewModel.Screen.VARIANT_PICKER ->
+                        ColorVariantPicker(
+                            navigateToLanding = {
+                                colorPickerViewModel.setScreen(ColorPickerViewModel.Screen.LANDING)
+                            },
+                            modifier = modifier,
+                        )
                 }
             }
         }
@@ -142,11 +124,149 @@ fun ColorFloatingSheet(
 }
 
 @Composable
-fun OptionListGroupDivider(modifier: Modifier = Modifier) {
-    val colorScheme = LocalAnimatedColorScheme.current
+fun ColorFloatingSheetLanding(
+    colorPickerViewModel: ColorPickerViewModel,
+    darkModeViewModel: DarkModeViewModel,
+    modifier: Modifier,
+) {
+    val colorScheme: CustomColorScheme = LocalAnimatedColorScheme.current
+    val colorOptionState: Map<ColorType, List<OptionItemViewModel2<ColorOptionIconViewModel>>> by
+        colorPickerViewModel.allColorOptions.collectAsStateWithLifecycle(initialValue = emptyMap())
+    val previewingDarkModeState: Boolean by
+        darkModeViewModel.previewingIsDarkMode.collectAsStateWithLifecycle(initialValue = false)
+    val toggleDarkMode: () -> Unit by
+        darkModeViewModel.toggleDarkMode.collectAsStateWithLifecycle(initialValue = {})
+    val isDarkModeEnabled: Boolean by
+        darkModeViewModel.isEnabled.collectAsStateWithLifecycle(initialValue = false)
+    val lazyListState: LazyListState = rememberLazyListState()
+    val textResId: Int by remember {
+        derivedStateOf {
+            val firstVisibleIndex = lazyListState.firstVisibleItemIndex
+            var startIdx = 0
+            var endIdx = 0
+            for (entries in colorOptionState.entries) {
+                endIdx += entries.value.size
+                if (firstVisibleIndex in startIdx..<endIdx) {
+                    return@derivedStateOf when (entries.key) {
+                        ColorType.WALLPAPER_COLOR -> R.string.wallpaper_color_tab
+                        ColorType.PRESET_COLOR -> R.string.preset_color_tab
+                    }
+                } else {
+                    startIdx = endIdx
+                }
+            }
+            return@derivedStateOf R.string.wallpaper_color_tab
+        }
+    }
+
     Box(
         modifier =
-            modifier.width(10.dp).height(28.dp).padding(horizontal = 4.dp).drawBehind {
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .clip(shape = RoundedCornerShape(28.dp))
+                .drawBehind { drawRect(colorScheme.surfaceBright) }
+    ) {
+        Column(modifier = Modifier.padding(vertical = 20.dp)) {
+            AnimatedContent(
+                targetState = textResId,
+                transitionSpec = {
+                    fadeIn(
+                        animationSpec = tween(durationMillis = 200, delayMillis = 200)
+                    ) togetherWith fadeOut(animationSpec = tween(durationMillis = 200))
+                },
+            ) { text ->
+                Text(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    text = stringResource(text),
+                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyRow(
+                state = lazyListState,
+                verticalAlignment = Alignment.CenterVertically,
+                contentPadding = PaddingValues(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                colorOptionState.values.forEachIndexed { colorTypeIdx, colorList ->
+                    if (colorTypeIdx != 0 && colorList.isNotEmpty()) {
+                        item { OptionListGroupDivider() }
+                    }
+                    itemsIndexed(colorList) { idx, option ->
+                        ColorSeedOption(
+                            isDarkMode = previewingDarkModeState,
+                            optionItem = option,
+                            navigateToVariantPicker = {
+                                colorPickerViewModel.setScreen(
+                                    ColorPickerViewModel.Screen.VARIANT_PICKER
+                                )
+                            },
+                            modifier =
+                                Modifier.size(
+                                        dimensionResource(R.dimen.floating_sheet_color_option_size)
+                                    )
+                                    .bounceable(
+                                        bounceable = colorList[idx],
+                                        previousBounceable =
+                                            if (idx > 0) colorList[idx - 1] else null,
+                                        nextBounceable =
+                                            if (idx < colorList.lastIndex) colorList[idx + 1]
+                                            else null,
+                                        orientation = Horizontal,
+                                    ),
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = stringResource(R.string.mode_title),
+                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+
+                Switch(
+                    checked = previewingDarkModeState,
+                    onCheckedChange = { toggleDarkMode() },
+                    enabled = isDarkModeEnabled,
+                    thumbContent =
+                        if (previewingDarkModeState) {
+                            {
+                                Icon(
+                                    painter =
+                                        painterResource(
+                                            com.android.wallpaper.R.drawable.ic_check_wallpaper
+                                        ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                                )
+                            }
+                        } else {
+                            null
+                        },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OptionListGroupDivider(modifier: Modifier = Modifier) {
+    val colorScheme: CustomColorScheme = LocalAnimatedColorScheme.current
+    Box(
+        modifier =
+            modifier.width(12.dp).height(28.dp).padding(horizontal = 5.dp).drawBehind {
                 drawRoundRect(
                     color = colorScheme.onSurfaceVariant,
                     cornerRadius = CornerRadius(x = 1.dp.toPx(), y = 1.dp.toPx()),
@@ -156,80 +276,100 @@ fun OptionListGroupDivider(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ColorOptionIcon(
+fun ColorSeedOption(
     isDarkMode: Boolean,
     optionItem: OptionItemViewModel2<ColorOptionIconViewModel>,
+    navigateToVariantPicker: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colorScheme = LocalAnimatedColorScheme.current
-    val coroutineScope = rememberCoroutineScope()
-    val colorIcon = optionItem.payload
-    val onClickState by optionItem.onClicked.collectAsStateWithLifecycle(initialValue = null)
-    val isSelectedState by optionItem.isSelected.collectAsStateWithLifecycle()
-    val shapeModifier =
-        if (isSelectedState) {
-            modifier
-                .clip(RoundedCornerShape(35))
-                .border(width = 3.dp, color = colorScheme.primary, shape = RoundedCornerShape(35))
-                .border(
-                    width = 7.dp,
-                    color = colorScheme.surfaceBright,
-                    shape = RoundedCornerShape(35),
-                )
-        } else {
-            modifier.padding(7.dp).clip(CircleShape)
-        }
-    Box(
-        modifier =
-            shapeModifier
-                .clickable {
+    val colorScheme: CustomColorScheme = LocalAnimatedColorScheme.current
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val colorIcon: ColorOptionIconViewModel? = optionItem.payload
+    val onClickState: (() -> Unit)? by
+        optionItem.onClicked.collectAsStateWithLifecycle(initialValue = null)
+    val isSelectedState: Boolean by optionItem.isSelected.collectAsStateWithLifecycle()
+
+    Box(modifier = modifier) {
+        ColorOption(
+            modifier = modifier,
+            isSelected = isSelectedState,
+            onClick = {
+                if (isSelectedState) {
+                    navigateToVariantPicker()
+                } else {
                     onClickState?.invoke()
                     coroutineScope.launch { optionItem.clickBounceAnimate() }
                 }
-                .drawBehind {
-                    // Round up width to prevent empty pixels between quadrants in bounce animation.
-                    val quadrantSize = Size(ceil(size.width / 2f), size.height / 2f)
-                    colorIcon?.let {
-                        drawRect(
-                            color =
-                                if (isDarkMode) {
-                                    Color(it.darkThemeColor0)
-                                } else {
-                                    Color(it.lightThemeColor0)
-                                },
-                            size = quadrantSize,
-                        )
-                        drawRect(
-                            color =
-                                if (isDarkMode) {
-                                    Color(it.darkThemeColor1)
-                                } else {
-                                    Color(it.lightThemeColor1)
-                                },
-                            topLeft = Offset(x = size.width / 2f, y = 0f),
-                            size = quadrantSize,
-                        )
-                        drawRect(
-                            color =
-                                if (isDarkMode) {
-                                    Color(it.darkThemeColor2)
-                                } else {
-                                    Color(it.lightThemeColor2)
-                                },
-                            topLeft = Offset(x = 0f, y = size.height / 2f),
-                            size = quadrantSize,
-                        )
-                        drawRect(
-                            color =
-                                if (isDarkMode) {
-                                    Color(it.darkThemeColor3)
-                                } else {
-                                    Color(it.lightThemeColor3)
-                                },
-                            topLeft = Offset(x = size.width / 2f, y = size.height / 2f),
-                            size = quadrantSize,
-                        )
-                    }
-                }
-    )
+            },
+        ) {
+            // Round up width to prevent empty pixels between quadrants in bounce
+            // animation.
+            val quadrantSize = Size(ceil(size.width / 2f), size.height / 2f)
+            colorIcon?.let {
+                drawRect(
+                    color =
+                        if (isDarkMode) {
+                            Color(it.darkThemeColor0)
+                        } else {
+                            Color(it.lightThemeColor0)
+                        },
+                    size = quadrantSize,
+                )
+                drawRect(
+                    color =
+                        if (isDarkMode) {
+                            Color(it.darkThemeColor1)
+                        } else {
+                            Color(it.lightThemeColor1)
+                        },
+                    topLeft = Offset(x = size.width / 2f, y = 0f),
+                    size = quadrantSize,
+                )
+                drawRect(
+                    color =
+                        if (isDarkMode) {
+                            Color(it.darkThemeColor2)
+                        } else {
+                            Color(it.lightThemeColor2)
+                        },
+                    topLeft = Offset(x = 0f, y = size.height / 2f),
+                    size = quadrantSize,
+                )
+                drawRect(
+                    color =
+                        if (isDarkMode) {
+                            Color(it.darkThemeColor3)
+                        } else {
+                            Color(it.lightThemeColor3)
+                        },
+                    topLeft = Offset(x = size.width / 2f, y = size.height / 2f),
+                    size = quadrantSize,
+                )
+            }
+        }
+
+        if (isSelectedState) {
+            // Edit icon
+            Box(
+                modifier =
+                    Modifier.size(dimensionResource(R.dimen.floating_sheet_clock_edit_icon_size))
+                        .align(Alignment.TopEnd)
+                        .offset(x = 15.dp, y = (-15).dp)
+                        .drawBehind {
+                            drawCircle(color = colorScheme.surfaceBright, radius = 18.dp.toPx())
+                            drawCircle(
+                                color = colorScheme.onPrimaryFixedVariant,
+                                radius = 14.dp.toPx(),
+                            )
+                        }
+            ) {
+                Icon(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = painterResource(R.drawable.edit_icon_foreground),
+                    tint = Color.White,
+                    contentDescription = null,
+                )
+            }
+        }
+    }
 }

@@ -36,50 +36,67 @@ import com.google.ux.material.libmonet.dynamiccolor.DynamicScheme
 import com.google.ux.material.libmonet.dynamiccolor.MaterialDynamicColors
 
 @Immutable
-interface ColorTransitionData {
+interface CustomColorScheme {
     val primary: Color
+    val onPrimary: Color
+    val onPrimaryFixedVariant: Color
+    val secondaryContainer: Color
+    val onSecondaryContainer: Color
     val surfaceBright: Color
     val onSurface: Color
     val onSurfaceVariant: Color
 }
 
-val defaultColorTransitionData =
-    object : ColorTransitionData {
+val defaultCustomColorScheme =
+    object : CustomColorScheme {
         override val primary: Color = Color.Transparent
+        override val onPrimary: Color = Color.Transparent
+        override val onPrimaryFixedVariant: Color = Color.Transparent
+        override val secondaryContainer: Color = Color.Transparent
+        override val onSecondaryContainer: Color = Color.Transparent
         override val surfaceBright: Color = Color.Transparent
         override val onSurface: Color = Color.Transparent
         override val onSurfaceVariant: Color = Color.Transparent
     }
 
-val LocalAnimatedColorScheme = compositionLocalOf { defaultColorTransitionData }
+val LocalAnimatedColorScheme = compositionLocalOf { defaultCustomColorScheme }
 
 @Composable
 fun ColorPreviewTheme(scheme: DynamicScheme?, content: @Composable () -> Unit) {
     if (scheme == null) {
         return content()
     }
-
-    val colorTransitionData = updateTransitionData(scheme)
+    val colorScheme = remember(scheme) { getColorScheme(scheme) }
+    val colorTransitionData = updateTransitionData(colorScheme)
 
     // Done at the root so that the whole content tree will receive the LocalAnimatedColorScheme.
-    CompositionLocalProvider(
-        value = LocalAnimatedColorScheme provides colorTransitionData,
-        content = content,
-    )
+    MaterialTheme(colorScheme = colorScheme) {
+        CompositionLocalProvider(
+            value = LocalAnimatedColorScheme provides colorTransitionData,
+            content = content,
+        )
+    }
 }
 
 @Composable
-fun updateTransitionData(scheme: DynamicScheme?): ColorTransitionData {
-    val colorState = remember(scheme) { scheme?.let { s: DynamicScheme -> getColorScheme(s) } }
-    val colorScheme = colorState ?: MaterialTheme.colorScheme
+fun updateTransitionData(colorScheme: ColorScheme): CustomColorScheme {
     val transition = updateTransition(colorScheme)
     val primary = transition.animateThemeColor { state -> state.primary }
+    val onPrimary = transition.animateThemeColor { state -> state.onPrimary }
+    val onPrimaryFixedVariant =
+        transition.animateThemeColor { state -> state.onPrimaryFixedVariant }
+    val secondaryContainer = transition.animateThemeColor { state -> state.secondaryContainer }
+    val onSecondaryContainer = transition.animateThemeColor { state -> state.onSecondaryContainer }
     val surfaceBright = transition.animateThemeColor { state -> state.surfaceBright }
     val onSurface = transition.animateThemeColor { state -> state.onSurface }
     val onSurfaceVariant = transition.animateThemeColor { state -> state.onSurfaceVariant }
     return remember(transition) {
-        object : ColorTransitionData {
+        object : CustomColorScheme {
             override val primary: Color by primary
+            override val onPrimary: Color by onPrimary
+            override val onPrimaryFixedVariant: Color by onPrimaryFixedVariant
+            override val secondaryContainer: Color by secondaryContainer
+            override val onSecondaryContainer: Color by onSecondaryContainer
             override val surfaceBright: Color by surfaceBright
             override val onSurface: Color by onSurface
             override val onSurfaceVariant: Color by onSurfaceVariant

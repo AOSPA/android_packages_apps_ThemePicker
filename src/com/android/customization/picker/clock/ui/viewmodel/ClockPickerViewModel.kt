@@ -26,7 +26,7 @@ import com.android.customization.module.logging.ThemesUserEventLogger
 import com.android.customization.picker.clock.domain.interactor.ClockPickerInteractor
 import com.android.customization.picker.clock.shared.ClockSize
 import com.android.customization.picker.clock.shared.model.ClockMetadataModel
-import com.android.customization.picker.color.domain.interactor.ColorPickerInteractor2
+import com.android.customization.picker.color.domain.interactor.ColorPickerInteractor
 import com.android.customization.picker.color.ui.viewmodel.ColorOptionIconViewModel
 import com.android.internal.policy.SystemBarUtils
 import com.android.systemui.customization.clocks.R as clocksR
@@ -71,7 +71,7 @@ constructor(
     @ApplicationContext context: Context,
     resources: Resources,
     private val clockPickerInteractor: ClockPickerInteractor,
-    colorPickerInteractor: ColorPickerInteractor2,
+    colorPickerInteractor: ColorPickerInteractor,
     private val logger: ThemesUserEventLogger,
     @BackgroundDispatcher private val backgroundDispatcher: CoroutineDispatcher,
     @Assisted private val viewModelScope: CoroutineScope,
@@ -413,14 +413,16 @@ constructor(
             previewingClockColorId,
             previewingColorSliderProgress,
         ) { seedColor, clockColorId, colorSliderProgress ->
-            val clockColorViewModel =
-                if (clockColorId == DEFAULT_CLOCK_COLOR_ID) null else colorMap[clockColorId]
-            clockColorViewModel?.let {
-                blendColorWithTone(
-                    color = clockColorViewModel.color,
-                    colorTone = clockColorViewModel.getColorTone(colorSliderProgress),
-                )
-            } ?: seedColor // Fallback to current clock seed color if clockColorViewModel is null
+            if (clockColorId == DEFAULT_CLOCK_COLOR_ID) {
+                null
+            } else {
+                colorMap[clockColorId]?.let { clockColorViewModel ->
+                    blendColorWithTone(
+                        color = clockColorViewModel.color,
+                        colorTone = clockColorViewModel.getColorTone(colorSliderProgress),
+                    )
+                } ?: seedColor // Fallback to current clock seed color if clockColorViewModel null
+            }
         }
 
     val clockColorOptions: Flow<List<OptionItemViewModel2<ColorOptionIconViewModel>>> =
