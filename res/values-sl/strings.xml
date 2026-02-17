@@ -41,7 +41,7 @@
     <string name="clock_color_teal" msgid="7499223425741344251">"Zelenomodra"</string>
     <string name="clock_size" msgid="5028923902364418263">"Velikost"</string>
     <string name="clock_size_dynamic" msgid="1023930312455061642">"Dinamična"</string>
-    <string name="clock_size_dynamic_description" msgid="2776620745774561662">"Velikost ure se spremeni glede na vsebino zaklenjenega zaslona."</string>
+    <string name="clock_size_dynamic_description" msgid="2776620745774561662">"Velikost ure se spremeni glede na vsebino zaklenjenega zaslona"</string>
     <string name="clock_size_large" msgid="3143248715744138979">"Velika"</string>
     <string name="clock_size_large_description" msgid="1171001745473029918">"Prikazano, ko obvestila niso vidna"</string>
     <string name="clock_size_small" msgid="2280449912094164133">"Majhna"</string>
@@ -171,6 +171,10 @@
     <string name="content_description_neutral_color_option" msgid="3385443834001275301">"Primarna nevtralna tema"</string>
     <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"Primarna živahna tema"</string>
     <string name="content_description_expressive_color_option" msgid="6081295313456341282">"Primarna izrazna tema"</string>
+    <string name="color_variant_option_label_neutral" msgid="4412085293640372330">"Nevtralno"</string>
+    <string name="color_variant_option_label_soft" msgid="5073290767548293847">"Nežno"</string>
+    <string name="color_variant_option_label_bright" msgid="3764688816491282376">"Svetlo"</string>
+    <string name="color_variant_option_label_bold" msgid="7239402636388565778">"Krepko"</string>
     <string name="color_variant_editor_apply" msgid="6735218825751029812">"Uporabi spremembo sloga teme"</string>
     <string name="color_variant_editor_revert" msgid="1786509144393262567">"Razveljavi spremembo sloga teme"</string>
     <string name="content_description_default_color_option" msgid="7011899327541080695">"Privzeta možnost barve"</string>

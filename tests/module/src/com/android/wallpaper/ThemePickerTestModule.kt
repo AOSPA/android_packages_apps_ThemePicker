@@ -82,7 +82,9 @@ import com.android.wallpaper.testing.FakeDefaultRequester
 import com.android.wallpaper.testing.FakeOnDeviceWallpapersInteractor
 import com.android.wallpaper.testing.FakeThirdPartyCategoryInteractor
 import com.android.wallpaper.testing.FakeWallpaperCategoryWrapper
+import com.android.wallpaper.testing.FakeWallpaperModelConversionHelper
 import com.android.wallpaper.testing.TestPartnerProvider
+import com.android.wallpaper.util.WallpaperModelConversionHelper
 import com.android.wallpaper.util.converter.DefaultWallpaperModelFactory
 import com.android.wallpaper.util.converter.WallpaperModelFactory
 import dagger.Binds
@@ -214,6 +216,12 @@ abstract class ThemePickerTestModule {
     abstract fun bindWallpaperModelFactory(
         impl: DefaultWallpaperModelFactory
     ): WallpaperModelFactory
+
+    @Binds
+    @Singleton
+    abstract fun bindWallpaperModelConversionHelper(
+        impl: FakeWallpaperModelConversionHelper
+    ): WallpaperModelConversionHelper
 
     @Binds
     @Singleton

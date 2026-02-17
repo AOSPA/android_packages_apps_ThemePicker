@@ -60,7 +60,7 @@
     <string name="app_icons_theme_default" msgid="4773453045331265070">"ಡಿಫಾಲ್ಟ್"</string>
     <string name="app_icons_theme_themed" msgid="6539464818104931856">"ಥೀಮ್‌ ಆಧಾರಿತ"</string>
     <string name="app_icons_style_default" msgid="2568057806991656437">"ಡಿಫಾಲ್ಟ್"</string>
-    <string name="app_icons_style_minimal" msgid="4905227469969513136">"ಕನಿಷ್ಠ"</string>
+    <string name="app_icons_style_minimal" msgid="4905227469969513136">"ಮಿನಿಮಲ್"</string>
     <string name="app_icons_shape" msgid="2539949450435849188">"ಆಕಾರ"</string>
     <string name="app_icons_label" msgid="394863025501627247">"ಲೇಬಲ್"</string>
     <string name="app_labels" msgid="4290052401987798752">"ಆ್ಯಪ್ ಲೇಬಲ್‌ಗಳು"</string>
@@ -165,12 +165,16 @@
     <string name="lock_screen_notifications_section_title" msgid="906673283764252102">"ಲಾಕ್‌ ಸ್ಕ್ರೀನ್ ಮೇಲೆ ನೋಟಿಫಿಕೇಶನ್"</string>
     <string name="lock_screen_notifications_section_description" msgid="3321937285144466046">"ನೋಟಿಫಿಕೇಶನ್‌ ಹೇಗೆ ಕಾಣಿಸಬೇಕು, ಏನು ತೋರಿಸಬೇಕು ಎಂಬುದನ್ನು ನಿರ್ವಹಿಸಿ"</string>
     <string name="more_settings_section_title" msgid="6854797937797818510">"ಇನ್ನಷ್ಟು ಲಾಕ್ ಸ್ಕ್ರೀನ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
-    <string name="more_settings_section_description" msgid="1860115709122398325">"ಗೌಪ್ಯತೆ, ಇದೀಗ ಪ್ಲೇ ಮಾಡಲಾಗುತ್ತಿದೆ ಮತ್ತು ಇನ್ನಷ್ಟು"</string>
+    <string name="more_settings_section_description" msgid="1860115709122398325">"ಗೌಪ್ಯತೆ, Now Playing ಮತ್ತು ಇನ್ನಷ್ಟು"</string>
     <string name="more_colors" msgid="3191071655353004591">"ಇನ್ನಷ್ಟು ಬಣ್ಣಗಳು"</string>
     <string name="content_description_dynamic_color_option" msgid="2191721655642529886">"ಪ್ರಾಥಮಿಕ ಡೈನಾಮಿಕ್ ಥೀಮ್"</string>
     <string name="content_description_neutral_color_option" msgid="3385443834001275301">"ಪ್ರಾಥಮಿಕ ತಟಸ್ಥ ಥೀಮ್"</string>
     <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"ಪ್ರಾಥಮಿಕ ವೈಬ್ರೆಂಟ್ ಥೀಮ್"</string>
     <string name="content_description_expressive_color_option" msgid="6081295313456341282">"ಪ್ರಾಥಮಿಕ ಅಭಿವ್ಯಕ್ತಿಶೀಲ ಥೀಮ್"</string>
+    <string name="color_variant_option_label_neutral" msgid="4412085293640372330">"ನ್ಯೂಟ್ರಲ್"</string>
+    <string name="color_variant_option_label_soft" msgid="5073290767548293847">"ಸಾಫ್ಟ್"</string>
+    <string name="color_variant_option_label_bright" msgid="3764688816491282376">"ಬ್ರೈಟ್"</string>
+    <string name="color_variant_option_label_bold" msgid="7239402636388565778">"ಬೋಲ್ಡ್"</string>
     <string name="color_variant_editor_apply" msgid="6735218825751029812">"ಥೀಮ್ ಶೈಲಿಯ ಬದಲಾವಣೆಯನ್ನು ಅನ್ವಯಿಸಿ"</string>
     <string name="color_variant_editor_revert" msgid="1786509144393262567">"ಥೀಮ್ ಶೈಲಿಯ ಬದಲಾವಣೆಯನ್ನು ರದ್ದುಗೊಳಿಸಿ"</string>
     <string name="content_description_default_color_option" msgid="7011899327541080695">"ಡೀಫಾಲ್ಟ್ ಬಣ್ಣದ ಆಯ್ಕೆ"</string>

@@ -136,7 +136,7 @@
     <string name="beta_title" msgid="8703819523760746458">"Beta 版"</string>
     <string name="gird_picker_entry_content_description" msgid="9087651470212293439">"更改应用网格"</string>
     <string name="wallpaper_color_tab" msgid="1447926591721403840">"壁纸颜色"</string>
-    <string name="wallpaper_color_subheader" msgid="4044464573669965670">"图标、文字等元素自动采用壁纸配色"</string>
+    <string name="wallpaper_color_subheader" msgid="4044464573669965670">"图标、文字等元素自动采用壁纸颜色"</string>
     <string name="wallpaper_color_title" msgid="5687965239180986458">"壁纸颜色"</string>
     <string name="preset_color_tab" msgid="3133391839341329314">"基本颜色"</string>
     <string name="preset_color_tab_2" msgid="1444107326712562538">"其他颜色"</string>
@@ -171,6 +171,10 @@
     <string name="content_description_neutral_color_option" msgid="3385443834001275301">"主要中性主题"</string>
     <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"主要鲜艳主题"</string>
     <string name="content_description_expressive_color_option" msgid="6081295313456341282">"主要炫彩主题"</string>
+    <string name="color_variant_option_label_neutral" msgid="4412085293640372330">"中性"</string>
+    <string name="color_variant_option_label_soft" msgid="5073290767548293847">"柔和"</string>
+    <string name="color_variant_option_label_bright" msgid="3764688816491282376">"明亮"</string>
+    <string name="color_variant_option_label_bold" msgid="7239402636388565778">"粗体"</string>
     <string name="color_variant_editor_apply" msgid="6735218825751029812">"应用主题样式更改"</string>
     <string name="color_variant_editor_revert" msgid="1786509144393262567">"撤销主题样式更改"</string>
     <string name="content_description_default_color_option" msgid="7011899327541080695">"默认颜色选项"</string>

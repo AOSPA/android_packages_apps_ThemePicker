@@ -24,6 +24,7 @@ import com.android.customization.model.color.ColorOptionImpl
 import com.android.customization.model.color.ColorProviderUtil
 import com.android.customization.model.color.ColorUtils.toColorString
 import com.android.customization.picker.color.shared.model.ColorType
+import com.android.wallpaper.config.BaseFlags
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,10 +32,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 @Singleton
-class FakeColorPickerRepository @Inject constructor() : ColorPickerRepository {
+class FakeColorPickerRepository @Inject constructor(private val baseFlags: BaseFlags) :
+    ColorPickerRepository {
 
     private val _selectedColorOption = MutableStateFlow<ColorOption?>(null)
     override val selectedColorOption = _selectedColorOption.asStateFlow()
+
+    override val styleList: List<Int> =
+        ColorProviderUtil.getStyleList(baseFlags.isColorPickerUpdateEnabled())
 
     private val _colorOptions =
         MutableStateFlow(

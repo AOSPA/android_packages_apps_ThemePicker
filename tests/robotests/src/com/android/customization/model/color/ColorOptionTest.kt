@@ -17,6 +17,10 @@ package com.android.customization.model.color
 
 import android.content.theming.ThemeStyle
 import android.graphics.Color
+import android.platform.test.annotations.DisableFlags
+import android.platform.test.annotations.EnableFlags
+import android.platform.test.flag.junit.SetFlagsRule
+import android.server.Flags.FLAG_ENABLE_THEME_SERVICE
 import com.android.customization.model.ResourceConstants.OVERLAY_CATEGORY_SYSTEM_PALETTE
 import com.android.customization.model.color.ColorProviderUtil.COLOR_SOURCE_HOME
 import com.android.customization.model.color.ColorProviderUtil.COLOR_SOURCE_LOCK
@@ -36,7 +40,7 @@ import org.robolectric.RobolectricTestRunner
 /** Tests of {@link ColorOption}. */
 @RunWith(RobolectricTestRunner::class)
 class ColorOptionTest {
-
+    @get:Rule val setFlagsRule = SetFlagsRule()
     @get:Rule val rule: MockitoRule = MockitoJUnit.rule()
 
     @Mock private lateinit var manager: ColorCustomizationManager
@@ -51,15 +55,16 @@ class ColorOptionTest {
     private fun testColorOptionSource(source: String) {
         val colorOption: ColorOption =
             ColorOptionImpl(
-                "fake color",
-                mapOf("fake_package" to "fake_color"),
-                false,
-                source,
-                12345,
-                ThemeStyle.TONAL_SPOT,
-                /* index= */ 0,
-                ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
-                ColorType.WALLPAPER_COLOR,
+                title = "fake color",
+                source = source,
+                seedColor = 12345,
+                style = ThemeStyle.TONAL_SPOT,
+                isThemeServiceEnabled = false,
+                overlayPackages = mapOf("fake_package" to "fake_color"),
+                isDefault = false,
+                index = 0,
+                previewInfo = ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
+                type = ColorType.WALLPAPER_COLOR,
             )
         assertThat(colorOption.source).isEqualTo(source)
     }
@@ -75,15 +80,16 @@ class ColorOptionTest {
     private fun testColorOptionStyle(@ThemeStyle.Type style: Int) {
         val colorOption: ColorOption =
             ColorOptionImpl(
-                "fake color",
-                mapOf("fake_package" to "fake_color"),
-                /* isDefault= */ false,
-                "fake_source",
-                12345,
-                style,
-                0,
-                ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
-                ColorType.WALLPAPER_COLOR,
+                title = "fake color",
+                source = "fake_source",
+                seedColor = 12345,
+                style = style,
+                isThemeServiceEnabled = false,
+                overlayPackages = mapOf("fake_package" to "fake_color"),
+                isDefault = false,
+                index = 0,
+                previewInfo = ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
+                type = ColorType.WALLPAPER_COLOR,
             )
         assertThat(colorOption.style).isEqualTo(style)
     }
@@ -99,15 +105,16 @@ class ColorOptionTest {
     private fun testColorOptionIndex(index: Int) {
         val colorOption: ColorOption =
             ColorOptionImpl(
-                "fake color",
-                mapOf("fake_package" to "fake_color"),
-                /* isDefault= */ false,
-                "fake_source",
-                12345,
-                ThemeStyle.TONAL_SPOT,
-                index,
-                ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
-                ColorType.WALLPAPER_COLOR,
+                title = "fake color",
+                source = "fake_source",
+                seedColor = 12345,
+                style = ThemeStyle.TONAL_SPOT,
+                isThemeServiceEnabled = false,
+                overlayPackages = mapOf("fake_package" to "fake_color"),
+                isDefault = false,
+                index = index,
+                previewInfo = ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
+                type = ColorType.WALLPAPER_COLOR,
             )
         assertThat(colorOption.index).isEqualTo(index)
     }
@@ -122,15 +129,16 @@ class ColorOptionTest {
     private fun testColorOptionSeed(seedColor: Int) {
         val colorOption: ColorOption =
             ColorOptionImpl(
-                "fake color",
-                mapOf("fake_package" to "fake_color"),
-                /* isDefault= */ false,
-                "fake_source",
-                seedColor,
-                ThemeStyle.TONAL_SPOT,
-                0,
-                ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
-                ColorType.WALLPAPER_COLOR,
+                title = "fake color",
+                source = "fake_source",
+                seedColor = seedColor,
+                style = ThemeStyle.TONAL_SPOT,
+                isThemeServiceEnabled = false,
+                overlayPackages = mapOf("fake_package" to "fake_color"),
+                isDefault = false,
+                index = 0,
+                previewInfo = ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
+                type = ColorType.WALLPAPER_COLOR,
             )
         assertThat(colorOption.seedColor).isEqualTo(seedColor)
     }
@@ -141,75 +149,236 @@ class ColorOptionTest {
     ): ColorOptionImpl {
         val overlays =
             if (isDefault) {
-                HashMap()
+                emptyMap()
             } else {
-                mapOf("package" to "value", "otherPackage" to "otherValue")
+                mapOf(OVERLAY_CATEGORY_SYSTEM_PALETTE to "fake_color")
             }
+        val json = JSONObject(overlays).toString()
+        `when`(manager.storedOverlays).thenReturn(json)
         `when`(manager.currentOverlays).thenReturn(overlays)
+        `when`(manager.currentColorSource).thenReturn(source)
+        `when`(manager.currentStyle).thenReturn(ThemeStyle.toString(ThemeStyle.TONAL_SPOT))
         return ColorOptionImpl(
-            "seed",
-            overlays,
-            isDefault,
-            source,
-            12345,
-            ThemeStyle.TONAL_SPOT,
-            /* index= */ 0,
-            ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
-            ColorType.WALLPAPER_COLOR,
+            title = "fake color",
+            source = source,
+            seedColor = 12345,
+            style = ThemeStyle.TONAL_SPOT,
+            isThemeServiceEnabled = false,
+            overlayPackages = overlays,
+            isDefault = isDefault,
+            index = 0,
+            previewInfo = ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
+            type = ColorType.WALLPAPER_COLOR,
+        )
+    }
+
+    private fun setUpThemeServiceColorOptionAndManager(
+        isDefault: Boolean,
+        source: String = "some_source",
+        overlays: Map<String, String?> = mapOf(OVERLAY_CATEGORY_SYSTEM_PALETTE to "fake_color"),
+        @ThemeStyle.Type style: Int = ThemeStyle.TONAL_SPOT,
+    ): ColorOptionImpl {
+        val json = JSONObject(overlays).toString()
+        `when`(manager.storedOverlays).thenReturn(json)
+        `when`(manager.currentOverlays).thenReturn(overlays)
+        `when`(manager.currentColorSource).thenReturn(source)
+        `when`(manager.currentStyle).thenReturn(ThemeStyle.toString(style))
+        return ColorOptionImpl(
+            title = "fake color",
+            source = source,
+            seedColor = 12345,
+            style = style,
+            isThemeServiceEnabled = true,
+            overlayPackages = overlays,
+            isDefault = isDefault,
+            index = 0,
+            previewInfo = ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
+            type = ColorType.WALLPAPER_COLOR,
         )
     }
 
     @Test
+    @DisableFlags(FLAG_ENABLE_THEME_SERVICE)
     fun wallpaperColorOption_isActive_notDefault_SourceSet() {
         val source = "some_source"
-        val colorOption = setUpWallpaperColorOption(false, source)
+        val colorOption = setUpWallpaperColorOption(isDefault = false, source = source)
         `when`(manager.currentColorSource).thenReturn(source)
 
         assertThat(colorOption.isActive(manager)).isTrue()
     }
 
     @Test
+    @DisableFlags(FLAG_ENABLE_THEME_SERVICE)
     fun wallpaperColorOption_isActive_notDefault_NoSource() {
-        val colorOption = setUpWallpaperColorOption(false)
+        val colorOption = setUpWallpaperColorOption(isDefault = false)
         `when`(manager.currentColorSource).thenReturn(null)
 
         assertThat(colorOption.isActive(manager)).isTrue()
     }
 
     @Test
+    @DisableFlags(FLAG_ENABLE_THEME_SERVICE)
     fun wallpaperColorOption_isActive_notDefault_differentSource() {
-        val colorOption = setUpWallpaperColorOption(false)
+        val colorOption = setUpWallpaperColorOption(isDefault = false)
         `when`(manager.currentColorSource).thenReturn("some_other_source")
 
         assertThat(colorOption.isActive(manager)).isFalse()
     }
 
     @Test
+    @DisableFlags(FLAG_ENABLE_THEME_SERVICE)
     fun wallpaperColorOption_isActive_default_emptyJson() {
-        val colorOption = setUpWallpaperColorOption(true)
+        val colorOption = setUpWallpaperColorOption(isDefault = true)
         `when`(manager.storedOverlays).thenReturn("")
+        `when`(manager.currentOverlays).thenReturn(emptyMap())
 
         assertThat(colorOption.isActive(manager)).isTrue()
     }
 
     @Test
+    @DisableFlags(FLAG_ENABLE_THEME_SERVICE)
     fun wallpaperColorOption_isActive_default_nonEmptyJson() {
-        val colorOption = setUpWallpaperColorOption(true)
+        val colorOption = setUpWallpaperColorOption(isDefault = true)
 
-        `when`(manager.storedOverlays).thenReturn("{non-empty-json}")
+        val overlays = mapOf("some_package" to "some_value", "other_package" to "other_value")
+        val json = JSONObject(overlays).toString()
+        `when`(manager.storedOverlays).thenReturn(json)
+        `when`(manager.currentOverlays).thenReturn(overlays)
 
         // Should still be Active because overlays is empty
         assertThat(colorOption.isActive(manager)).isTrue()
     }
 
     @Test
+    @DisableFlags(FLAG_ENABLE_THEME_SERVICE)
     fun wallpaperColorOption_isActive_default_nonEmptyOverlays() {
-        val colorOption = setUpWallpaperColorOption(true)
+        val colorOption = setUpWallpaperColorOption(isDefault = true)
 
         val settings = mapOf(OVERLAY_CATEGORY_SYSTEM_PALETTE to "fake_color")
         val json = JSONObject(settings).toString()
         `when`(manager.storedOverlays).thenReturn(json)
         `when`(manager.currentOverlays).thenReturn(settings)
+        assertThat(colorOption.isActive(manager)).isFalse()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_themeServiceEnabled() {
+        val colorOption = setUpThemeServiceColorOptionAndManager(isDefault = false)
+
+        assertThat(colorOption.isActive(manager)).isTrue()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_default_themeServiceEnabled() {
+        val colorOption = setUpThemeServiceColorOptionAndManager(isDefault = true)
+
+        assertThat(colorOption.isActive(manager)).isTrue()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_noSourceInManager_themeServiceEnabled() {
+        val colorOption = setUpThemeServiceColorOptionAndManager(isDefault = false)
+        `when`(manager.currentColorSource).thenReturn(null)
+
+        assertThat(colorOption.isActive(manager)).isTrue()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_differentSourceInManager_themeServiceEnabled() {
+        val colorOption =
+            setUpThemeServiceColorOptionAndManager(isDefault = false, source = "some_source")
+        `when`(manager.currentColorSource).thenReturn("some_other_source")
+
+        assertThat(colorOption.isActive(manager)).isFalse()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_noStyleInManager_tonalSpotOption_themeServiceEnabled() {
+        val colorOption =
+            setUpThemeServiceColorOptionAndManager(isDefault = false, style = ThemeStyle.TONAL_SPOT)
+        `when`(manager.currentStyle).thenReturn(null)
+
+        assertThat(colorOption.isActive(manager)).isTrue()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_noStyleInManager_nonTonalSpotOption_themeServiceEnabled() {
+        val colorOption =
+            setUpThemeServiceColorOptionAndManager(isDefault = false, style = ThemeStyle.VIBRANT)
+        `when`(manager.currentStyle).thenReturn(null)
+
+        assertThat(colorOption.isActive(manager)).isFalse()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_differentStyleInManager_themeServiceEnabled() {
+        val colorOption =
+            setUpThemeServiceColorOptionAndManager(isDefault = false, style = ThemeStyle.VIBRANT)
+        `when`(manager.currentStyle).thenReturn(ThemeStyle.toString(ThemeStyle.SPRITZ))
+
+        assertThat(colorOption.isActive(manager)).isFalse()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_noOverlayInManager_themeServiceEnabled() {
+        val colorOption = setUpThemeServiceColorOptionAndManager(isDefault = false)
+        `when`(manager.storedOverlays).thenReturn("")
+        `when`(manager.currentOverlays).thenReturn(mapOf())
+
+        assertThat(colorOption.isActive(manager)).isFalse()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_default_noOverlayInManager_themeServiceEnabled() {
+        val colorOption = setUpThemeServiceColorOptionAndManager(isDefault = true)
+        `when`(manager.storedOverlays).thenReturn("")
+        `when`(manager.currentOverlays).thenReturn(mapOf())
+
+        assertThat(colorOption.isActive(manager)).isTrue()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_default_overlayMissingColorSettings_themeServiceEnabled() {
+        val colorOption = setUpThemeServiceColorOptionAndManager(isDefault = true)
+        val overlays = mapOf("some_package" to "some_value", "other_package" to "other_value")
+        val json = JSONObject(overlays).toString()
+        `when`(manager.storedOverlays).thenReturn(json)
+        `when`(manager.currentOverlays).thenReturn(overlays)
+
+        assertThat(colorOption.isActive(manager)).isTrue()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_differentColorSettingsInManager_themeServiceEnabled() {
+        val colorOption = setUpThemeServiceColorOptionAndManager(isDefault = false)
+        val overlays = mapOf(OVERLAY_CATEGORY_SYSTEM_PALETTE to "other_color")
+        val json = JSONObject(overlays).toString()
+        `when`(manager.storedOverlays).thenReturn(json)
+        `when`(manager.currentOverlays).thenReturn(overlays)
+
+        assertThat(colorOption.isActive(manager)).isFalse()
+    }
+
+    @Test
+    @EnableFlags(FLAG_ENABLE_THEME_SERVICE)
+    fun isActive_default_differentColorSettingsInManager_themeServiceEnabled() {
+        val colorOption = setUpThemeServiceColorOptionAndManager(isDefault = true)
+        val overlays = mapOf(OVERLAY_CATEGORY_SYSTEM_PALETTE to "other_color")
+        val json = JSONObject(overlays).toString()
+        `when`(manager.storedOverlays).thenReturn(json)
+        `when`(manager.currentOverlays).thenReturn(overlays)
+
         assertThat(colorOption.isActive(manager)).isFalse()
     }
 }

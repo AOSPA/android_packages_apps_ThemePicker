@@ -140,7 +140,7 @@
     <string name="wallpaper_color_title" msgid="5687965239180986458">"배경화면 색상"</string>
     <string name="preset_color_tab" msgid="3133391839341329314">"기본 색상"</string>
     <string name="preset_color_tab_2" msgid="1444107326712562538">"기타 색상"</string>
-    <string name="preset_color_subheader" msgid="8230588536141279371">"아이콘, 시계 등을 위한 색상을 선택하세요"</string>
+    <string name="preset_color_subheader" msgid="8230588536141279371">"아이콘, 시계 등에 적용될 색상을 선택하세요"</string>
     <string name="color_changed" msgid="7029571720331641235">"색상 변경됨"</string>
     <string name="adaptive_color_title" msgid="1336508599235896205">"동적"</string>
     <string name="color_picker_title" msgid="6666830057938082864">"시스템 색상"</string>
@@ -171,6 +171,10 @@
     <string name="content_description_neutral_color_option" msgid="3385443834001275301">"기본 보통 테마"</string>
     <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"기본 활기 테마"</string>
     <string name="content_description_expressive_color_option" msgid="6081295313456341282">"기본 표현 테마"</string>
+    <string name="color_variant_option_label_neutral" msgid="4412085293640372330">"뉴트럴"</string>
+    <string name="color_variant_option_label_soft" msgid="5073290767548293847">"소프트"</string>
+    <string name="color_variant_option_label_bright" msgid="3764688816491282376">"브라이트"</string>
+    <string name="color_variant_option_label_bold" msgid="7239402636388565778">"볼드"</string>
     <string name="color_variant_editor_apply" msgid="6735218825751029812">"테마 스타일 변경 적용"</string>
     <string name="color_variant_editor_revert" msgid="1786509144393262567">"테마 스타일 변경 실행취소"</string>
     <string name="content_description_default_color_option" msgid="7011899327541080695">"기본 색상 옵션"</string>

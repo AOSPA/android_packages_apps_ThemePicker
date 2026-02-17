@@ -60,7 +60,7 @@
     <string name="app_icons_theme_default" msgid="4773453045331265070">"ଡିଫଲ୍ଟ"</string>
     <string name="app_icons_theme_themed" msgid="6539464818104931856">"ଥିମ କରାଯାଇଛି"</string>
     <string name="app_icons_style_default" msgid="2568057806991656437">"ଡିଫଲ୍ଟ"</string>
-    <string name="app_icons_style_minimal" msgid="4905227469969513136">"ସର୍ବନିମ୍ନ"</string>
+    <string name="app_icons_style_minimal" msgid="4905227469969513136">"ମିନିମାଲ"</string>
     <string name="app_icons_shape" msgid="2539949450435849188">"ଆକାର"</string>
     <string name="app_icons_label" msgid="394863025501627247">"ଲେବଲ"</string>
     <string name="app_labels" msgid="4290052401987798752">"ଆପ ଲେବଲ"</string>
@@ -118,7 +118,7 @@
     <string name="use_style_instead_title" msgid="1578754995763917502">"ଏହା ପରିବର୍ତ୍ତେ <xliff:g id="ID_1">%1$s</xliff:g> ବ୍ୟବହାର କରିବେ?"</string>
     <string name="use_style_instead_body" msgid="3051937045807471496">"ଆପଣ ବଛିଥିବା ଉପାଦାନଗୁଡ଼ିକ <xliff:g id="ID_1">%1$s</xliff:g> ଶୈଳୀ ସହ ମେଳ ହେଉଛି। ଏହା ପରିବର୍ତ୍ତେ ଆପଣ <xliff:g id="ID_2">%1$s</xliff:g>କୁ ବ୍ୟବହାର କରିବାକୁ ଚାହୁଁଛନ୍ତି କି?"</string>
     <string name="use_style_button" msgid="1754493078383627019">"<xliff:g id="ID_1">%1$s</xliff:g> ବ୍ୟବହାର କରନ୍ତୁ"</string>
-    <string name="no_thanks" msgid="7286616980115687627">"ନାହିଁ, ଥାଉ"</string>
+    <string name="no_thanks" msgid="7286616980115687627">"ନା, ଧନ୍ୟବାଦ"</string>
     <string name="clock_preview_content_description" msgid="5460561185905717460">"<xliff:g id="ID_1">%1$s</xliff:g> ଘଣ୍ଟାର ପୂର୍ବାବଲୋକନ"</string>
     <string name="something_went_wrong" msgid="529840112449799117">"ଓହୋଃ, କିଛି ଭୁଲ ହୋଇଗଲା।"</string>
     <string name="theme_preview_icons_section_title" msgid="7064768910744000643">"ରଙ୍ଗ / ଆଇକନଗୁଡ଼ିକ"</string>
@@ -171,6 +171,10 @@
     <string name="content_description_neutral_color_option" msgid="3385443834001275301">"ପ୍ରାଥମିକ ନ୍ୟୁଟ୍ରାଲ ଥିମ"</string>
     <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"ପ୍ରାଥମିକ ଭାଇବ୍ରାଣ୍ଟ ଥିମ"</string>
     <string name="content_description_expressive_color_option" msgid="6081295313456341282">"ପ୍ରାଥମିକ ଏକ୍ସପ୍ରେସିଭ ଥିମ"</string>
+    <string name="color_variant_option_label_neutral" msgid="4412085293640372330">"ନ୍ୟୁଟ୍ରାଲ"</string>
+    <string name="color_variant_option_label_soft" msgid="5073290767548293847">"ସଫ୍ଟ"</string>
+    <string name="color_variant_option_label_bright" msgid="3764688816491282376">"ଉଜ୍ଜ୍ୱଳ"</string>
+    <string name="color_variant_option_label_bold" msgid="7239402636388565778">"ବୋଲ୍ଡ କରନ୍ତୁ"</string>
     <string name="color_variant_editor_apply" msgid="6735218825751029812">"ଥିମ ଷ୍ଟାଇଲରେ କରାଯାଇଥିବା ପରିବର୍ତ୍ତନକୁ ଲାଗୁ କରନ୍ତୁ"</string>
     <string name="color_variant_editor_revert" msgid="1786509144393262567">"ଥିମ ଷ୍ଟାଇଲରେ କରାଯାଇଥିବା ପରିବର୍ତ୍ତନକୁ ଅନଡୁ କରନ୍ତୁ"</string>
     <string name="content_description_default_color_option" msgid="7011899327541080695">"ଡିଫଲ୍ଟ ରଙ୍ଗର ବିକଳ୍ପ"</string>

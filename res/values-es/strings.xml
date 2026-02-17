@@ -59,7 +59,7 @@
     <string name="app_icons_description" msgid="6616831372060467315">"<xliff:g id="ID_1">%1$s</xliff:g>, <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="app_icons_theme_default" msgid="4773453045331265070">"predeterminado"</string>
     <string name="app_icons_theme_themed" msgid="6539464818104931856">"temático"</string>
-    <string name="app_icons_style_default" msgid="2568057806991656437">"Predeterminado"</string>
+    <string name="app_icons_style_default" msgid="2568057806991656437">"Por defecto"</string>
     <string name="app_icons_style_minimal" msgid="4905227469969513136">"Minimalista"</string>
     <string name="app_icons_shape" msgid="2539949450435849188">"Forma"</string>
     <string name="app_icons_label" msgid="394863025501627247">"Etiqueta"</string>
@@ -156,7 +156,7 @@
     <string name="keyguard_quick_affordance_title" msgid="4242813186995735584">"Accesos directos"</string>
     <string name="keyguard_quick_affordance_section_title" msgid="2806304242671717309">"Accesos directos"</string>
     <string name="color_contrast_section_title" msgid="7194809124718896091">"Contraste de color"</string>
-    <string name="color_contrast_default_title" msgid="7954235103549276978">"Predeterminado"</string>
+    <string name="color_contrast_default_title" msgid="7954235103549276978">"Por defecto"</string>
     <string name="color_contrast_medium_title" msgid="8071574793250090215">"Medio"</string>
     <string name="color_contrast_high_title" msgid="5554685752479470200">"Alto"</string>
     <string name="keyguard_quick_affordance_two_selected_template" msgid="1757099194522296363">"<xliff:g id="FIRST">%1$s</xliff:g>, <xliff:g id="SECOND">%2$s</xliff:g>"</string>
@@ -171,6 +171,10 @@
     <string name="content_description_neutral_color_option" msgid="3385443834001275301">"Tema neutro principal"</string>
     <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"Tema intenso principal"</string>
     <string name="content_description_expressive_color_option" msgid="6081295313456341282">"Tema expresivo principal"</string>
+    <string name="color_variant_option_label_neutral" msgid="4412085293640372330">"Neutro"</string>
+    <string name="color_variant_option_label_soft" msgid="5073290767548293847">"Suave"</string>
+    <string name="color_variant_option_label_bright" msgid="3764688816491282376">"Brillante"</string>
+    <string name="color_variant_option_label_bold" msgid="7239402636388565778">"Intenso"</string>
     <string name="color_variant_editor_apply" msgid="6735218825751029812">"Aplicar cambio de estilo del tema"</string>
     <string name="color_variant_editor_revert" msgid="1786509144393262567">"Deshacer cambio de estilo del tema"</string>
     <string name="content_description_default_color_option" msgid="7011899327541080695">"Opción de color predeterminada"</string>
