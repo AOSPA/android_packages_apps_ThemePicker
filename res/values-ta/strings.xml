@@ -49,6 +49,8 @@
     <string name="clock_font_editor_apply" msgid="5965611025879105293">"கடிகார எழுத்து வடிவ மாற்றங்களைப் பயன்படுத்தும்"</string>
     <string name="clock_font_editor_revert" msgid="5307491447405753061">"கடிகார எழுத்து வடிவ மாற்றங்களைச் செயல்தவிர்க்கும்"</string>
     <string name="clock_style_round_clock" msgid="1694787561051568664">"வட்டக் கடிகாரம்"</string>
+    <string name="clock_style_sharp_clock" msgid="1534034367317255693">"கூர் வடிவ எண் கொண்ட கடிகாரம்"</string>
+    <string name="change_clock_style_content_description" msgid="5831805715265928702">"<xliff:g id="ID_1">%1$s</xliff:g>. கடிகார ஸ்டைலை மாற்ற தட்டவும்."</string>
     <string name="clock_style_update_toast" msgid="6933583129162805444">"<xliff:g id="ID_1">%1$s</xliff:g> ஸ்டைலுக்கு மாற்றப்பட்டது. செயல்தவிர்க்க மீண்டும் தட்டவும்."</string>
     <string name="clock_style_round" msgid="261319982647730366">"வட்ட"</string>
     <string name="clock_style_sharp" msgid="453991773733285628">"கூர்மை"</string>
@@ -62,7 +64,6 @@
     <string name="app_icons_style_default" msgid="2568057806991656437">"இயல்பு"</string>
     <string name="app_icons_style_minimal" msgid="4905227469969513136">"மினிமல்"</string>
     <string name="app_icons_shape" msgid="2539949450435849188">"வடிவம்"</string>
-    <string name="app_icons_label" msgid="394863025501627247">"லேபிள்"</string>
     <string name="app_labels" msgid="4290052401987798752">"ஆப்ஸ் லேபிள்கள்"</string>
     <string name="app_names" msgid="708691253698583169">"பெயர்கள்"</string>
     <string name="show_app_names" msgid="522703901790555973">"ஆப்ஸ் பெயர்களைக் காட்டுதல்"</string>
@@ -162,7 +163,7 @@
     <string name="keyguard_quick_affordance_two_selected_template" msgid="1757099194522296363">"<xliff:g id="FIRST">%1$s</xliff:g>, <xliff:g id="SECOND">%2$s</xliff:g>"</string>
     <string name="keyguard_quick_affordance_none_selected" msgid="8494127020144112003">"ஏதுமில்லை"</string>
     <string name="show_notifications_on_lock_screen" msgid="4157744243084646720">"பூட்டுத் திரையில் அறிவிப்புகளைக் காட்டு"</string>
-    <string name="lock_screen_notifications_section_title" msgid="906673283764252102">"பூட்டுத் திரையில் அறிவிப்புகள்"</string>
+    <string name="lock_screen_notifications_section_title" msgid="906673283764252102">"லாக்ஸ்கிரீனில் அறிவிப்புகள்"</string>
     <string name="lock_screen_notifications_section_description" msgid="3321937285144466046">"அறிவிப்புகள் தோன்றும் விதம் &amp; காட்ட வேண்டியவற்றை நிர்வகிக்கலாம்"</string>
     <string name="more_settings_section_title" msgid="6854797937797818510">"கூடுதல் பூட்டுத் திரை அமைப்புகள்"</string>
     <string name="more_settings_section_description" msgid="1860115709122398325">"தனியுரிமை, பாடல் விவரம் மற்றும் பல"</string>
@@ -177,11 +178,13 @@
     <string name="color_variant_option_label_bold" msgid="7239402636388565778">"தடிமன்"</string>
     <string name="color_variant_editor_apply" msgid="6735218825751029812">"தீம் ஸ்டைல் மாற்றத்தைப் பயன்படுத்தும்"</string>
     <string name="color_variant_editor_revert" msgid="1786509144393262567">"தீம் ஸ்டைல் மாற்றத்தைச் செயல்தவிர்க்கும்"</string>
+    <string name="color_freeform_editor_description" msgid="1019960558215074662">"வண்ணத்தைத் தேர்ந்தெடுக்கலாம்"</string>
     <string name="content_description_default_color_option" msgid="7011899327541080695">"இயல்பு வண்ண விருப்பம்"</string>
     <string name="content_description_color_option" msgid="4169813692012119578">"வண்ண விருப்பம் <xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="scroll_forward_and_select" msgid="6156132388656395769">"வேறு கடிகார முகப்பைத் தேர்வுசெய்ய இடதுபக்கம் ஸ்வைப் செய்யவும்"</string>
     <string name="scroll_backward_and_select" msgid="5472202348434803757">"வேறு கடிகார முகப்பைத் தேர்வுசெய்ய வலதுபக்கம் ஸ்வைப் செய்யவும்"</string>
     <string name="custom_clocks_label" msgid="8168419717593569347">"பிரத்தியேகக் கடிகார முகப்புகள்"</string>
     <string name="clock_face_width" msgid="5818129719338363570">"வாட்ச் முகப்பின் அகலம்"</string>
-    <string name="slider_state_description_template" msgid="1028160527998877233">"%1$d, %2$d முதல் %3$d வரையிலான வரம்பு"</string>
+    <string name="enabled_slider_state_description_template" msgid="110185389957126478">"%1$d, %2$d முதல் %3$d வரையிலான வரம்பு"</string>
+    <string name="disabled_slider_state_description_template" msgid="660230299054431711">"முடக்கப்பட்டது, %1$d, %2$d முதல் %3$d வரையிலான வரம்பு"</string>
 </resources>

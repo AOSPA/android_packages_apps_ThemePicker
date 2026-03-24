@@ -47,6 +47,7 @@
             It's critical for any TextViews inside the included layout to have text.
             -->
             <include
+                android:id="@+id/icon_style_option_placeholder"
                 layout="@layout/icon_style_option2"
                 android:visibility="invisible" />
 
@@ -173,6 +174,7 @@
                 android:layout_weight="0"
                 android:contentDescription="@string/show_app_names"
                 android:clickable="true"
+                android:focusable="true"
                 android:theme="@style/Theme.Material3.DynamicColors.DayNight" />
         </LinearLayout>
     </FrameLayout>

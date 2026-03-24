@@ -49,6 +49,8 @@
     <string name="clock_font_editor_apply" msgid="5965611025879105293">"Applica le modifiche al carattere dell\'orologio"</string>
     <string name="clock_font_editor_revert" msgid="5307491447405753061">"Annulla le modifiche al carattere dell\'orologio"</string>
     <string name="clock_style_round_clock" msgid="1694787561051568664">"Orologio rotondo"</string>
+    <string name="clock_style_sharp_clock" msgid="1534034367317255693">"Orologio con linee e bordi spigolosi"</string>
+    <string name="change_clock_style_content_description" msgid="5831805715265928702">"<xliff:g id="ID_1">%1$s</xliff:g>. Tocca per cambiare lo stile dell\'orologio."</string>
     <string name="clock_style_update_toast" msgid="6933583129162805444">"Stile modificato in <xliff:g id="ID_1">%1$s</xliff:g>. Tocca di nuovo per annullare."</string>
     <string name="clock_style_round" msgid="261319982647730366">"arrotondato"</string>
     <string name="clock_style_sharp" msgid="453991773733285628">"nitido"</string>
@@ -62,7 +64,6 @@
     <string name="app_icons_style_default" msgid="2568057806991656437">"Predefinito"</string>
     <string name="app_icons_style_minimal" msgid="4905227469969513136">"Minimal"</string>
     <string name="app_icons_shape" msgid="2539949450435849188">"Forma"</string>
-    <string name="app_icons_label" msgid="394863025501627247">"Etichetta"</string>
     <string name="app_labels" msgid="4290052401987798752">"Etichette app"</string>
     <string name="app_names" msgid="708691253698583169">"Nomi"</string>
     <string name="show_app_names" msgid="522703901790555973">"Mostra nomi delle app"</string>
@@ -177,11 +178,13 @@
     <string name="color_variant_option_label_bold" msgid="7239402636388565778">"Deciso"</string>
     <string name="color_variant_editor_apply" msgid="6735218825751029812">"Applica modifica allo stile del tema"</string>
     <string name="color_variant_editor_revert" msgid="1786509144393262567">"Annulla modifica allo stile del tema"</string>
+    <string name="color_freeform_editor_description" msgid="1019960558215074662">"Seleziona un colore"</string>
     <string name="content_description_default_color_option" msgid="7011899327541080695">"Opzione colore predefinita"</string>
     <string name="content_description_color_option" msgid="4169813692012119578">"Opzione colore <xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="scroll_forward_and_select" msgid="6156132388656395769">"Scorri a sinistra per selezionare un altro quadrante"</string>
     <string name="scroll_backward_and_select" msgid="5472202348434803757">"Scorri a destra per selezionare un altro quadrante"</string>
     <string name="custom_clocks_label" msgid="8168419717593569347">"Quadranti personalizzati"</string>
     <string name="clock_face_width" msgid="5818129719338363570">"Larghezza del quadrante orologio"</string>
-    <string name="slider_state_description_template" msgid="1028160527998877233">"%1$d, intervallo da %2$d a %3$d"</string>
+    <string name="enabled_slider_state_description_template" msgid="110185389957126478">"%1$d, intervallo da %2$d a %3$d"</string>
+    <string name="disabled_slider_state_description_template" msgid="660230299054431711">"disabilitato, %1$d, intervallo da %2$d a %3$d"</string>
 </resources>
