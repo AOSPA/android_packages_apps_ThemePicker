@@ -22,6 +22,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.visible
 import androidx.compose.foundation.layout.wrapContentSize
@@ -34,7 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -47,7 +48,6 @@ import com.android.customization.picker.mode.ui.viewmodel.DarkModeViewModel
 import com.android.systemui.monet.ColorScheme
 import com.android.wallpaper.customization.ui.viewmodel.ThemePickerCustomizationOptionsViewModel
 import com.android.wallpaper.picker.common.preview.ui.viewmodel.WorkspacePreviewScreen
-import com.android.wallpaper.util.DisplayUtils
 
 /**
  * Displays the corresponding workspace screen based on the preview screen flow and enables UI color
@@ -58,7 +58,6 @@ fun ColorPreviewScreens(
     optionsViewModel: ThemePickerCustomizationOptionsViewModel,
     colorPickerViewModel: ColorPickerViewModel,
     darkModeViewModel: DarkModeViewModel,
-    displayUtils: DisplayUtils,
 ) {
     val previewScreen by
         optionsViewModel.workspacePreviewScreen.collectAsStateWithLifecycle(
@@ -90,12 +89,10 @@ fun ColorPreviewScreens(
                         .onSizeChanged { newSize -> size = newSize }
                         .wrapContentSize(unbounded = true)
             ) {
-                val displaySize = displayUtils.getActiveDisplaySize(context = LocalContext.current)
-                val displayWidth = displaySize.x
-                val displayHeight = displaySize.y
-                val displayWidthDp = with(LocalDensity.current) { displayWidth.toDp() }
-                val displayHeightDp = with(LocalDensity.current) { displayHeight.toDp() }
-                val contentScale = size.width / displayWidth.toFloat()
+                val configuration = LocalConfiguration.current
+                val windowWidthDp = configuration.screenWidthDp.dp
+                val windowHeightDp = configuration.screenHeightDp.dp
+                val contentScale = size.width / with(LocalDensity.current) { windowWidthDp.toPx() }
 
                 AnimatedContent(
                     targetState = previewScreen,
@@ -104,13 +101,12 @@ fun ColorPreviewScreens(
                     // Render content in full screen, then scale down to fit preview
                     Box(
                         modifier =
-                            Modifier.size(width = displayWidthDp, height = displayHeightDp)
+                            Modifier.size(width = windowWidthDp, height = windowHeightDp)
                                 .align(Alignment.Center)
                                 .scale(contentScale)
                     ) {
                         SkeletonShade(
-                            isDualShade = displayWidthDp > 600.dp,
-                            modifier = Modifier.visible(value == WorkspacePreviewScreen.SHADE),
+                            modifier = Modifier.visible(value == WorkspacePreviewScreen.SHADE)
                         )
                         SkeletonWidgetPicker(
                             modifier =
