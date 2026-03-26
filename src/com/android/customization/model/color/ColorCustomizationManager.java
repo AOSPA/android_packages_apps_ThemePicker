@@ -251,6 +251,7 @@ public class ColorCustomizationManager implements CustomizationManager<ColorOpti
     }
 
     /** */
+    // TODO(b/488057749): consider updating logging for multiple seed colors
     public int getCurrentSeedColorForLogging() {
         String seedColor = getCurrentOverlays().get(OVERLAY_CATEGORY_SYSTEM_PALETTE);
         if (seedColor == null || seedColor.isEmpty()) {

@@ -59,7 +59,7 @@ object ColorProviderUtil {
     annotation class ColorSource
 
     /**
-     * Builds a [ColorOptionImpl] for a wallpaper-based color with a specified color and style. Only
+     * Builds a [ColorOptionImpl] for a wallpaper-based color with specified colors and style. Only
      * use this when Theme Service cannot be used. Otherwise use
      * [ColorOptionImpl.buildSimplifiedSeedOption].
      *
@@ -75,19 +75,19 @@ object ColorProviderUtil {
      */
     fun buildBundle(
         context: Context,
-        colorInt: Int,
+        colors: List<Int>,
         index: Int,
         @ThemeStyle.Type style: Int,
         isDefault: Boolean,
         isColorPickerUpdateEnabled: Boolean,
         isThemeServiceEnabled: Boolean,
     ): ColorOptionImpl {
-        val lightColorScheme = ColorScheme(colorInt, /* darkTheme= */ false, style)
-        val darkColorScheme = ColorScheme(colorInt, /* darkTheme= */ true, style)
+        val lightColorScheme = ColorScheme(colors, /* darkTheme= */ false, style)
+        val darkColorScheme = ColorScheme(colors, /* darkTheme= */ true, style)
         val builder = ColorOptionImpl.Builder()
         builder.source = COLOR_SOURCE_HOME
         builder.style = style
-        builder.seedColor = colorInt
+        builder.seedColors = colors
         builder.lightColors =
             getColorPreview(
                 colorScheme = lightColorScheme,
@@ -106,7 +106,7 @@ object ColorProviderUtil {
         builder.isThemeServiceEnabled = isThemeServiceEnabled
         // Always set system palette color if theme service is enabled
         if (!isDefault || isThemeServiceEnabled) {
-            builder.addOverlayPackage(OVERLAY_CATEGORY_SYSTEM_PALETTE, toColorString(colorInt))
+            builder.addOverlayPackage(OVERLAY_CATEGORY_SYSTEM_PALETTE, toColorString(colors[0]))
         }
         builder.title =
             when (style) {
@@ -127,12 +127,12 @@ object ColorProviderUtil {
     }
 
     /**
-     * Builds a [ColorOptionImpl] for a preset color with a specified color and style Only use this
+     * Builds a [ColorOptionImpl] for a preset color with specified colors and style. Only use this
      * when Theme Service cannot be used. Otherwise use [ColorOptionImpl.buildSimplifiedSeedOption]
      */
     fun buildPreset(
         title: String,
-        color: Int,
+        colors: List<Int>,
         index: Int,
         @ThemeStyle.Type style: Int? = null,
         type: ColorType = ColorType.PRESET_COLOR,
@@ -143,20 +143,23 @@ object ColorProviderUtil {
         builder.index = index
         builder.source = COLOR_SOURCE_PRESET
         builder.type = type
-        var darkColorScheme = ColorScheme(color, /* darkTheme= */ true)
-        var lightColorScheme = ColorScheme(color, /* darkTheme= */ false)
+        var darkColorScheme = ColorScheme(colors, /* darkTheme= */ true)
+        var lightColorScheme = ColorScheme(colors, /* darkTheme= */ false)
         val lightColor = lightColorScheme.accentColor
         val darkColor = darkColorScheme.accentColor
         var lightColors = intArrayOf(lightColor, lightColor, lightColor, lightColor)
         var darkColors = intArrayOf(darkColor, darkColor, darkColor, darkColor)
-        builder.seedColor = color
-        builder.addOverlayPackage(OVERLAY_CATEGORY_COLOR, toColorString(color))
-        builder.addOverlayPackage(OVERLAY_CATEGORY_SYSTEM_PALETTE, toColorString(color))
+        builder.seedColors = colors
+        builder.addOverlayPackage(OVERLAY_CATEGORY_SYSTEM_PALETTE, toColorString(colors[0]))
+        builder.addOverlayPackage(
+            OVERLAY_CATEGORY_COLOR,
+            toColorString(if (colors.size > 1) colors[1] else colors[0]),
+        )
         if (style != null) {
             builder.style = style
 
-            lightColorScheme = ColorScheme(color, /* darkTheme= */ false, style)
-            darkColorScheme = ColorScheme(color, /* darkTheme= */ true, style)
+            lightColorScheme = ColorScheme(colors, /* darkTheme= */ false, style)
+            darkColorScheme = ColorScheme(colors, /* darkTheme= */ true, style)
 
             lightColors =
                 getColorPreview(
@@ -282,8 +285,8 @@ object ColorProviderUtil {
     fun getDarkOneOrTwoColorPreview(colorScheme: ColorScheme): IntArray {
         val colors =
             when (colorScheme.style) {
-                ThemeStyle.FRUIT_SALAD ->
-                    intArrayOf(colorScheme.accent3.s100, colorScheme.accent1.s200)
+                ThemeStyle.FRUIT_SALAD,
+                ThemeStyle.CMF -> intArrayOf(colorScheme.accent3.s100, colorScheme.accent1.s200)
                 else -> intArrayOf(colorScheme.accent1.s200, colorScheme.accent1.s200)
             }
         return intArrayOf(colors[0], colors[1], colors[0], colors[1])
@@ -296,7 +299,8 @@ object ColorProviderUtil {
     fun getLightOneOrTwoColorPreview(colorScheme: ColorScheme): IntArray {
         val colors =
             when (colorScheme.style) {
-                ThemeStyle.FRUIT_SALAD ->
+                ThemeStyle.FRUIT_SALAD,
+                ThemeStyle.CMF ->
                     intArrayOf(
                         colorScheme.accent3.getAtTone(450f),
                         colorScheme.accent1.getAtTone(550f),
@@ -335,7 +339,7 @@ object ColorProviderUtil {
             // TODO(b/441279631): string needed for accessibility
             title = "",
             source = COLOR_SOURCE_PRESET,
-            seedColor = hct.toInt(),
+            seedColors = listOf(hct.toInt()),
             defaultStyle = ThemeStyle.TONAL_SPOT,
         )
     }
