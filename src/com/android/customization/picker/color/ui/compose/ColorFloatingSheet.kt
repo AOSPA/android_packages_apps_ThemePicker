@@ -121,7 +121,7 @@ fun ColorFloatingSheet(
         val scheme =
             remember(previewingColorOption, previewingIsDarkMode, previewingStyle) {
                 previewingColorOption?.let {
-                    ColorScheme(it.seedColor, previewingIsDarkMode, previewingStyle ?: it.style)
+                    ColorScheme(it.seedColors, previewingIsDarkMode, previewingStyle ?: it.style)
                         .materialScheme
                 }
             }
@@ -155,7 +155,7 @@ fun ColorFloatingSheet(
                         ColorVariantPicker(
                             styleOptions = styleOptions,
                             selectedOption = previewingStyle,
-                            previewingSeedColor = previewingColorOption?.seedColor,
+                            previewingSeedColors = previewingColorOption?.seedColors,
                             previewingIsDarkMode = previewingIsDarkMode,
                             onClick = colorPickerViewModel::onStyleOptionClick,
                             onCancel = colorPickerViewModel::cancelStyleOptionSelection,

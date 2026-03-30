@@ -95,7 +95,8 @@ public interface ResourceConstants {
      */
     String COLOR_BUNDLES_ARRAY_NAME = "color_bundles";
     String COLOR_BUNDLE_NAME_PREFIX = "bundle_name_";
-    String COLOR_BUNDLE_MAIN_COLOR_PREFIX = "color_secondary_";
+    String COLOR_BUNDLE_PRIMARY_COLOR_PREFIX = "color_primary_";
+    String COLOR_BUNDLE_SECONDARY_COLOR_PREFIX = "color_secondary_";
     String COLOR_BUNDLE_STYLE_PREFIX = "color_style_";
 
     ArrayList<String> sTargetPackages = new ArrayList<>();

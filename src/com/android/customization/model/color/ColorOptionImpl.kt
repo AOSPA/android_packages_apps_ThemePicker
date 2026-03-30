@@ -16,6 +16,7 @@
  */
 package com.android.customization.model.color
 
+import android.annotation.Size
 import android.content.Context
 import android.content.theming.ThemeStyle
 import android.stats.style.StyleEnums
@@ -31,7 +32,7 @@ import com.android.themepicker.R
 open class ColorOptionImpl(
     title: String?,
     private val source: String?,
-    seedColor: Int,
+    @ColorInt @Size(min = 1) seedColors: List<Int>,
     @ThemeStyle.Type style: Int,
     isThemeServiceEnabled: Boolean = false,
     isColorPickerUpdateEnabled: Boolean = false,
@@ -45,7 +46,7 @@ open class ColorOptionImpl(
         title,
         overlayPackages,
         isDefault,
-        seedColor,
+        seedColors,
         style,
         index,
         isThemeServiceEnabled,
@@ -105,19 +106,19 @@ open class ColorOptionImpl(
         fun buildSimplifiedSeedOption(
             title: String?,
             source: String?,
-            seedColor: Int,
+            seedColors: List<Int>,
             @ThemeStyle.Type defaultStyle: Int,
         ): ColorOptionImpl {
             val lightColors =
                 ColorProviderUtil.getColorPreview(
-                    colorScheme = ColorScheme(seedColor, /* darkTheme= */ false, defaultStyle),
+                    colorScheme = ColorScheme(seedColors, /* darkTheme= */ false, defaultStyle),
                     colorSource = source,
                     darkTheme = false,
                     isColorPickerUpdateEnabled = true,
                 )
             val darkColors =
                 ColorProviderUtil.getColorPreview(
-                    colorScheme = ColorScheme(seedColor, /* darkTheme= */ true, defaultStyle),
+                    colorScheme = ColorScheme(seedColors, /* darkTheme= */ true, defaultStyle),
                     colorSource = source,
                     darkTheme = true,
                     isColorPickerUpdateEnabled = true,
@@ -126,7 +127,7 @@ open class ColorOptionImpl(
                 ColorOptionImpl(
                     title = title,
                     source = source,
-                    seedColor = seedColor,
+                    seedColors = seedColors,
                     style = defaultStyle,
                     previewInfo = PreviewInfo(lightColors, darkColors),
                     isThemeServiceEnabled = true,
@@ -134,7 +135,7 @@ open class ColorOptionImpl(
                 override fun isEquivalent(other: ColorOption?): Boolean {
                     return other is ColorOptionImpl &&
                         this.source == other.source &&
-                        this.seedColor == other.seedColor
+                        this.seedColors == other.seedColors
                 }
             }
         }
@@ -149,7 +150,16 @@ open class ColorOptionImpl(
 
         @ColorProviderUtil.ColorSource var source: String? = null
         var isDefault = false
-        @ColorInt var seedColor = 0
+        @ColorInt
+        @Size(min = 1)
+        var seedColors: List<Int> = listOf(0)
+            set(value) {
+                if (value.isEmpty()) {
+                    throw IllegalArgumentException("Seed color list cannot be empty")
+                }
+                field = value
+            }
+
         @ThemeStyle.Type var style = ThemeStyle.TONAL_SPOT
         var index = 0
         var packages: MutableMap<String, String?> = HashMap()
@@ -161,7 +171,7 @@ open class ColorOptionImpl(
             return ColorOptionImpl(
                 title = title,
                 source = source,
-                seedColor = seedColor,
+                seedColors = seedColors,
                 style = style,
                 isThemeServiceEnabled = isThemeServiceEnabled,
                 isColorPickerUpdateEnabled = isColorPickerUpdateEnabled,
