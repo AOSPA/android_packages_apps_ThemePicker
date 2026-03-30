@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,17 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-package com.android.customization.picker.color.shared.model
 
-enum class ColorType {
-    /** Color created by the user using the freeform color picker */
-    FREEFORM_COLOR,
+package com.android.wallpaper.picker.common.preview.ui.viewmodel
 
-    /** Colors generated based on the current wallpaper */
-    WALLPAPER_COLOR,
-
-    /** Preset colors */
-    PRESET_COLOR,
+enum class WorkspacePreviewScreen {
+    LAUNCHER,
+    SHADE,
+    WIDGET_PICKER,
 }
