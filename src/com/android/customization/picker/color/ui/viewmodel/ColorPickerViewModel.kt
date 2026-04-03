@@ -88,7 +88,7 @@ constructor(
      * compares source and seed color, and is meant to be used in the color seed & variant picker.
      */
     private fun ColorOption.getKey(): String {
-        return "${this.source}::${this.seedColor}"
+        return "${this.source}::${this.seedColors}"
     }
 
     // Screen, used in updated variant & freeform picker
@@ -222,6 +222,7 @@ constructor(
                             },
                             text =
                                 Text.Loaded(colorOption.getContentDescription(context).toString()),
+                            enableDrillDown = styleOptions.contains(colorOption.style),
                         )
                     }
             }
@@ -353,12 +354,14 @@ constructor(
                         applyAndWaitForColorUpdate(
                             apply = { interactor.apply(colorOption, style) },
                             onSuccess = {
+                                // TODO(b/488057749): consider updating logging for multiple seed
+                                //  colors
                                 logger.logThemeColorApplied(
                                     colorOption.sourceForLogging,
                                     // TODO(b/473022455): centralize logging in
                                     //  ThemesUserEventLogger
                                     ThemeStyle.toString(style).hashCode(),
-                                    colorOption.seedColor,
+                                    colorOption.seedColors[0],
                                 )
                             },
                         )
@@ -378,7 +381,7 @@ constructor(
                                     logger.logThemeColorApplied(
                                         it.sourceForLogging,
                                         it.styleForLogging,
-                                        it.seedColor,
+                                        it.seedColors[0],
                                     )
                                 },
                             )

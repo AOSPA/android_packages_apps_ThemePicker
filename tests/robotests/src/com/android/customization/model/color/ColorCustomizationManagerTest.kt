@@ -142,7 +142,7 @@ class ColorCustomizationManagerTest {
         return ColorOptionImpl(
             title = "fake color",
             source = COLOR_SOURCE_PRESET,
-            seedColor = 12345,
+            seedColors = listOf(12345),
             style = ThemeStyle.TONAL_SPOT,
             isThemeServiceEnabled = false,
             overlayPackages = mapOf("fake_package" to "fake_color"),
@@ -157,7 +157,7 @@ class ColorCustomizationManagerTest {
         return ColorOptionImpl(
             title = "fake color",
             source = COLOR_SOURCE_HOME,
-            seedColor = 12345,
+            seedColors = listOf(12345),
             style = ThemeStyle.TONAL_SPOT,
             isThemeServiceEnabled = false,
             overlayPackages = mapOf("fake_package" to "fake_color"),

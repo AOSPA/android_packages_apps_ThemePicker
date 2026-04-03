@@ -65,6 +65,7 @@ constructor(
     @ApplicationContext private val context: Context,
     private val defaultWorkspaceCallbackBinder: DefaultWorkspaceCallbackBinder,
     private val materialColorsGenerator: MaterialColorsGenerator,
+    private val baseFlags: BaseFlags,
 ) : WorkspaceCallbackBinder {
 
     private var lockScreenJob: Job? = null
@@ -229,16 +230,29 @@ constructor(
                                                         (colorNeedsUpdate || styleNeedsUpdate) &&
                                                             colorOption != null
                                                     ) {
-                                                        val style =
-                                                            overridingStyle ?: colorOption.style
-                                                        val (ids, colors) =
-                                                            materialColorsGenerator.generate(
-                                                                colorOption.seedColor,
-                                                                style,
-                                                                overridingDarkMode,
+                                                        if (baseFlags.isThemeServiceEnabled()) {
+                                                            val style =
+                                                                overridingStyle ?: colorOption.style
+                                                            putIntArray(
+                                                                KEY_SEED_COLOR_LIST,
+                                                                colorOption.seedColors.toIntArray(),
                                                             )
-                                                        putIntArray(KEY_COLOR_RESOURCE_IDS, ids)
-                                                        putIntArray(KEY_COLOR_VALUES, colors)
+                                                            putInt(KEY_THEME_STYLE, style)
+                                                        } else {
+                                                            val style =
+                                                                overridingStyle ?: colorOption.style
+                                                            val (ids, colors) =
+                                                                materialColorsGenerator.generate(
+                                                                    // Multi-seed preview is not
+                                                                    // enabled outside of theme
+                                                                    // service
+                                                                    colorOption.seedColors[0],
+                                                                    style,
+                                                                    overridingDarkMode,
+                                                                )
+                                                            putIntArray(KEY_COLOR_RESOURCE_IDS, ids)
+                                                            putIntArray(KEY_COLOR_VALUES, colors)
+                                                        }
                                                     }
 
                                                     if (overridingDarkMode != null) {
@@ -266,14 +280,28 @@ constructor(
                                             val bundle =
                                                 Bundle().apply {
                                                     if (colorOption != null) {
-                                                        val (ids, colors) =
-                                                            materialColorsGenerator.generate(
-                                                                colorOption.seedColor,
-                                                                colorOption.style,
-                                                                darkMode,
+                                                        if (baseFlags.isThemeServiceEnabled()) {
+                                                            putIntArray(
+                                                                KEY_SEED_COLOR_LIST,
+                                                                colorOption.seedColors.toIntArray(),
                                                             )
-                                                        putIntArray(KEY_COLOR_RESOURCE_IDS, ids)
-                                                        putIntArray(KEY_COLOR_VALUES, colors)
+                                                            putInt(
+                                                                KEY_THEME_STYLE,
+                                                                colorOption.style,
+                                                            )
+                                                        } else {
+                                                            val (ids, colors) =
+                                                                materialColorsGenerator.generate(
+                                                                    // Multi-seed preview is not
+                                                                    // enabled outside of theme
+                                                                    // service
+                                                                    colorOption.seedColors[0],
+                                                                    colorOption.style,
+                                                                    darkMode,
+                                                                )
+                                                            putIntArray(KEY_COLOR_RESOURCE_IDS, ids)
+                                                            putIntArray(KEY_COLOR_VALUES, colors)
+                                                        }
                                                     }
 
                                                     if (darkMode != null) {
@@ -363,6 +391,8 @@ constructor(
         const val KEY_COLOR_VALUES: String = "color_values"
         const val KEY_DARK_MODE: String = "use_dark_mode"
         const val KEY_BOOLEAN_VALUE: String = "boolean_value"
+        const val KEY_SEED_COLOR_LIST: String = "seed_color_list"
+        const val KEY_THEME_STYLE: String = "theme_style"
 
         const val MESSAGE_ID_UPDATE_COMMAND = 512
         const val KEY_UPDATE_METHOD = "update_method"
