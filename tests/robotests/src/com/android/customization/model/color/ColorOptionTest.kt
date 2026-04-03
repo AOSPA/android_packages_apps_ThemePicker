@@ -29,6 +29,7 @@ import com.android.customization.picker.color.shared.model.ColorType
 import com.android.wallpaper.Flags.FLAG_COLOR_PICKER_UPDATE_FLAG
 import com.google.common.truth.Truth.assertThat
 import org.json.JSONObject
+import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +59,7 @@ class ColorOptionTest {
             ColorOptionImpl(
                 title = "fake color",
                 source = source,
-                seedColor = 12345,
+                seedColors = listOf(12345),
                 style = ThemeStyle.TONAL_SPOT,
                 isThemeServiceEnabled = false,
                 overlayPackages = mapOf("fake_package" to "fake_color"),
@@ -83,7 +84,7 @@ class ColorOptionTest {
             ColorOptionImpl(
                 title = "fake color",
                 source = "fake_source",
-                seedColor = 12345,
+                seedColors = listOf(12345),
                 style = style,
                 isThemeServiceEnabled = false,
                 overlayPackages = mapOf("fake_package" to "fake_color"),
@@ -108,7 +109,7 @@ class ColorOptionTest {
             ColorOptionImpl(
                 title = "fake color",
                 source = "fake_source",
-                seedColor = 12345,
+                seedColors = listOf(12345),
                 style = ThemeStyle.TONAL_SPOT,
                 isThemeServiceEnabled = false,
                 overlayPackages = mapOf("fake_package" to "fake_color"),
@@ -122,17 +123,28 @@ class ColorOptionTest {
 
     @Test
     fun colorOption_seedColor() {
-        testColorOptionSeed(Color.RED)
-        testColorOptionSeed(Color.WHITE)
-        testColorOptionSeed(Color.BLACK)
+        testColorOptionSeeds(listOf(Color.RED))
+        testColorOptionSeeds(listOf(Color.WHITE))
+        testColorOptionSeeds(listOf(Color.BLACK))
+        testColorOptionSeeds(listOf(Color.RED, Color.BLACK))
     }
 
-    private fun testColorOptionSeed(seedColor: Int) {
+    @Test
+    fun colorOption_noSeedColor_throwsException() {
+        try {
+            testColorOptionSeeds(listOf())
+            fail("Expected IllegalArgumentException to be thrown")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e.message).isEqualTo("Seed color list cannot be empty")
+        }
+    }
+
+    private fun testColorOptionSeeds(seedColors: List<Int>) {
         val colorOption: ColorOption =
             ColorOptionImpl(
                 title = "fake color",
                 source = "fake_source",
-                seedColor = seedColor,
+                seedColors = seedColors,
                 style = ThemeStyle.TONAL_SPOT,
                 isThemeServiceEnabled = false,
                 overlayPackages = mapOf("fake_package" to "fake_color"),
@@ -141,7 +153,7 @@ class ColorOptionTest {
                 previewInfo = ColorOptionImpl.PreviewInfo(intArrayOf(0), intArrayOf(0)),
                 type = ColorType.WALLPAPER_COLOR,
             )
-        assertThat(colorOption.seedColor).isEqualTo(seedColor)
+        assertThat(colorOption.seedColors).isEqualTo(seedColors)
     }
 
     private fun setUpWallpaperColorOption(
@@ -164,7 +176,7 @@ class ColorOptionTest {
         return ColorOptionImpl(
             title = "fake color",
             source = source,
-            seedColor = 12345,
+            seedColors = listOf(12345),
             style = style,
             isThemeServiceEnabled = false,
             isColorPickerUpdateEnabled = isColorPickerUpdateEnabled,
@@ -191,7 +203,7 @@ class ColorOptionTest {
         return ColorOptionImpl(
             title = "fake color",
             source = source,
-            seedColor = 12345,
+            seedColors = listOf(12345),
             style = style,
             isThemeServiceEnabled = true,
             isColorPickerUpdateEnabled = isColorPickerUpdateEnabled,
@@ -300,14 +312,14 @@ class ColorOptionTest {
             ColorOptionImpl.buildSimplifiedSeedOption(
                 title = "some_title",
                 source = "some_source",
-                seedColor = 12345,
+                seedColors = listOf(12345),
                 defaultStyle = 1,
             )
         val otherColorOption =
             ColorOptionImpl.buildSimplifiedSeedOption(
                 title = "some_title",
                 source = "other_source",
-                seedColor = 12345,
+                seedColors = listOf(12345),
                 defaultStyle = 1,
             )
 
@@ -322,14 +334,36 @@ class ColorOptionTest {
             ColorOptionImpl.buildSimplifiedSeedOption(
                 title = "some_title",
                 source = "some_source",
-                seedColor = 12345,
+                seedColors = listOf(12345),
                 defaultStyle = 1,
             )
         val otherColorOption =
             ColorOptionImpl.buildSimplifiedSeedOption(
                 title = "some_title",
                 source = "some_source",
-                seedColor = 54321,
+                seedColors = listOf(54321),
+                defaultStyle = 1,
+            )
+
+        // Should be Active because style is no longer compared in color picker update
+        assertThat(colorOption.isEquivalent(otherColorOption)).isFalse()
+    }
+
+    @Test
+    @EnableFlags(FLAG_COLOR_PICKER_UPDATE_FLAG, FLAG_ENABLE_THEME_SERVICE)
+    fun simplifiedColorOption_isEquivalent_differentSeedColors() {
+        val colorOption =
+            ColorOptionImpl.buildSimplifiedSeedOption(
+                title = "some_title",
+                source = "some_source",
+                seedColors = listOf(12345),
+                defaultStyle = 1,
+            )
+        val otherColorOption =
+            ColorOptionImpl.buildSimplifiedSeedOption(
+                title = "some_title",
+                source = "some_source",
+                seedColors = listOf(12345, 54321),
                 defaultStyle = 1,
             )
 
@@ -344,14 +378,14 @@ class ColorOptionTest {
             ColorOptionImpl.buildSimplifiedSeedOption(
                 title = "some_title",
                 source = "some_source",
-                seedColor = 12345,
+                seedColors = listOf(12345),
                 defaultStyle = 1,
             )
         val otherColorOption =
             ColorOptionImpl.buildSimplifiedSeedOption(
                 title = "some_title",
                 source = "some_source",
-                seedColor = 12345,
+                seedColors = listOf(12345),
                 defaultStyle = 2,
             )
 
