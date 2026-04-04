@@ -23,9 +23,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.android.customization.model.CustomizationManager.OptionsFetchedListener
 import com.android.customization.model.ResourceConstants.COLOR_BUNDLES_ARRAY_NAME
+import com.android.customization.model.ResourceConstants.COLOR_BUNDLE_MAIN_COLOR_PREFIX
 import com.android.customization.model.ResourceConstants.COLOR_BUNDLE_NAME_PREFIX
-import com.android.customization.model.ResourceConstants.COLOR_BUNDLE_PRIMARY_COLOR_PREFIX
-import com.android.customization.model.ResourceConstants.COLOR_BUNDLE_SECONDARY_COLOR_PREFIX
 import com.android.customization.model.ResourceConstants.COLOR_BUNDLE_STYLE_PREFIX
 import com.android.customization.model.ResourcesApkProvider
 import com.android.customization.model.color.ColorProviderUtil.COLOR_SOURCE_HOME
@@ -158,7 +157,7 @@ open class ColorProvider(private val context: Context, stubPackageName: String) 
                 val colorOption =
                     ColorProviderUtil.buildBundle(
                         context = context,
-                        colors = listOf(colorInt),
+                        colorInt = colorInt,
                         // Color option index value starts from 1.
                         index = i + 1,
                         style = style,
@@ -186,13 +185,13 @@ open class ColorProvider(private val context: Context, stubPackageName: String) 
                     ColorOptionImpl.buildSimplifiedSeedOption(
                         title = "",
                         source = COLOR_SOURCE_HOME,
-                        seedColors = listOf(colorInt),
+                        seedColor = colorInt,
                         defaultStyle = ThemeStyle.TONAL_SPOT,
                     )
                 } else {
                     ColorProviderUtil.buildBundle(
                         context = context,
-                        colors = listOf(colorInt),
+                        colorInt = colorInt,
                         // Color option index value starts from 1.
                         index = i + 1,
                         style = ThemeStyle.TONAL_SPOT,
@@ -221,20 +220,11 @@ open class ColorProvider(private val context: Context, stubPackageName: String) 
             for ((i, bundleName) in bundleNames.withIndex()) {
                 val title =
                     resourcesApkProvider.getItemStringFromStub(COLOR_BUNDLE_NAME_PREFIX, bundleName)
-                val primaryColor =
+                val color =
                     resourcesApkProvider.getItemColorFromStub(
-                        COLOR_BUNDLE_PRIMARY_COLOR_PREFIX,
+                        COLOR_BUNDLE_MAIN_COLOR_PREFIX,
                         bundleName,
                     )
-                val secondaryColor =
-                    resourcesApkProvider.getItemColorFromStub(
-                        COLOR_BUNDLE_SECONDARY_COLOR_PREFIX,
-                        bundleName,
-                    )
-                val colors =
-                    if (secondaryColor != primaryColor) {
-                        listOf(primaryColor, secondaryColor)
-                    } else listOf(primaryColor)
                 val styleName =
                     try {
                         resourcesApkProvider.getItemStringFromStub(
@@ -262,13 +252,13 @@ open class ColorProvider(private val context: Context, stubPackageName: String) 
                         ColorOptionImpl.buildSimplifiedSeedOption(
                             title = title,
                             source = COLOR_SOURCE_PRESET,
-                            seedColors = colors,
+                            seedColor = color,
                             defaultStyle = style,
                         )
                     } else {
                         ColorProviderUtil.buildPreset(
                             title = title,
-                            colors = colors,
+                            color = color,
                             // Color option index value starts from 1.
                             index = i + 1,
                             style = style,
@@ -300,13 +290,13 @@ open class ColorProvider(private val context: Context, stubPackageName: String) 
         monochromeBundleName?.let {
             val title = resourcesApkProvider.getItemStringFromStub(COLOR_BUNDLE_NAME_PREFIX, it)
             val color =
-                resourcesApkProvider.getItemColorFromStub(COLOR_BUNDLE_PRIMARY_COLOR_PREFIX, it)
+                resourcesApkProvider.getItemColorFromStub(COLOR_BUNDLE_MAIN_COLOR_PREFIX, it)
             if (colorList.isNotEmpty()) {
                 colorList.add(
                     1,
                     ColorProviderUtil.buildPreset(
                         title = title,
-                        colors = listOf(color),
+                        color = color,
                         index = -1,
                         style = ThemeStyle.MONOCHROMATIC,
                         type = ColorType.WALLPAPER_COLOR,

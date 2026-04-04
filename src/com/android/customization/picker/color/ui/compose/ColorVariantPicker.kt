@@ -113,7 +113,7 @@ object Shader {
 fun ColorVariantPicker(
     styleOptions: List<StyleBounceable>,
     selectedOption: Int?,
-    previewingSeedColors: List<Int>?,
+    previewingSeedColor: Int?,
     previewingIsDarkMode: Boolean,
     onClick: (Int) -> Unit,
     onCancel: () -> Unit,
@@ -140,11 +140,11 @@ fun ColorVariantPicker(
                 val isSelected = option.style == selectedOption
                 val animatedAlpha: Float by animateFloatAsState(if (isSelected) 1f else 0.25f)
                 val scheme =
-                    remember(previewingSeedColors, previewingIsDarkMode) {
-                        if (!previewingSeedColors.isNullOrEmpty()) {
-                            ColorScheme(previewingSeedColors, previewingIsDarkMode, option.style)
+                    remember(previewingSeedColor, previewingIsDarkMode) {
+                        previewingSeedColor?.let {
+                            ColorScheme(previewingSeedColor, previewingIsDarkMode, option.style)
                                 .materialScheme
-                        } else null
+                        }
                     }
                 Column(modifier = Modifier.width(68.dp)) {
                     ColorOption(
@@ -178,6 +178,7 @@ fun ColorVariantPicker(
                                                 materialColors.secondaryFixed().getArgb(scheme),
                                             topLayer = materialColors.primaryFixed().getArgb(scheme),
                                         )
+
                                     else ->
                                         VariantColors(
                                             background =

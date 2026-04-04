@@ -77,7 +77,7 @@ fun ColorPreviewScreens(
         val scheme =
             remember(previewingColorOption, previewingIsDarkMode, previewingStyle) {
                 previewingColorOption?.let {
-                    ColorScheme(it.seedColors, previewingIsDarkMode, previewingStyle ?: it.style)
+                    ColorScheme(it.seedColor, previewingIsDarkMode, previewingStyle ?: it.style)
                         .materialScheme
                 }
             }

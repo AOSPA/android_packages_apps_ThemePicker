@@ -233,9 +233,10 @@ constructor(
                                                         if (baseFlags.isThemeServiceEnabled()) {
                                                             val style =
                                                                 overridingStyle ?: colorOption.style
+                                                            // TODO (b/488057749): enable multi-seed
                                                             putIntArray(
                                                                 KEY_SEED_COLOR_LIST,
-                                                                colorOption.seedColors.toIntArray(),
+                                                                intArrayOf(colorOption.seedColor),
                                                             )
                                                             putInt(KEY_THEME_STYLE, style)
                                                         } else {
@@ -243,10 +244,7 @@ constructor(
                                                                 overridingStyle ?: colorOption.style
                                                             val (ids, colors) =
                                                                 materialColorsGenerator.generate(
-                                                                    // Multi-seed preview is not
-                                                                    // enabled outside of theme
-                                                                    // service
-                                                                    colorOption.seedColors[0],
+                                                                    colorOption.seedColor,
                                                                     style,
                                                                     overridingDarkMode,
                                                                 )
@@ -281,9 +279,10 @@ constructor(
                                                 Bundle().apply {
                                                     if (colorOption != null) {
                                                         if (baseFlags.isThemeServiceEnabled()) {
+                                                            // TODO (b/488057749): enable multi-seed
                                                             putIntArray(
                                                                 KEY_SEED_COLOR_LIST,
-                                                                colorOption.seedColors.toIntArray(),
+                                                                intArrayOf(colorOption.seedColor),
                                                             )
                                                             putInt(
                                                                 KEY_THEME_STYLE,
@@ -292,10 +291,7 @@ constructor(
                                                         } else {
                                                             val (ids, colors) =
                                                                 materialColorsGenerator.generate(
-                                                                    // Multi-seed preview is not
-                                                                    // enabled outside of theme
-                                                                    // service
-                                                                    colorOption.seedColors[0],
+                                                                    colorOption.seedColor,
                                                                     colorOption.style,
                                                                     darkMode,
                                                                 )

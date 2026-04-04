@@ -272,8 +272,8 @@ class ColorProviderTest {
         // Flag isColorPickerUpdateEnabled is on, so we would expect 1 option for each seed.
         assertThat(wallpaperOptions).isNotNull()
         assertThat(wallpaperOptions).hasSize(2)
-        assertThat(wallpaperOptions[0].seedColors[0]).isEqualTo(Color.RED)
-        assertThat(wallpaperOptions[1].seedColors[0]).isEqualTo(Color.YELLOW)
+        assertThat(wallpaperOptions[0].seedColor).isEqualTo(Color.RED)
+        assertThat(wallpaperOptions[1].seedColor).isEqualTo(Color.YELLOW)
         // packagesByCategory is not used in Theme Service
         assertThat(wallpaperOptions[0].packagesByCategory).isEmpty()
         assertThat(wallpaperOptions[1].packagesByCategory).isEmpty()
@@ -298,7 +298,6 @@ class ColorProviderTest {
         `when`(resourcesApkProvider.isAvailable).thenReturn(true)
         `when`(resourcesApkProvider.getItemsFromStub(ResourceConstants.COLOR_BUNDLES_ARRAY_NAME))
             .thenReturn(bundleNames)
-        // Preset 1: blue
         `when`(
                 resourcesApkProvider.getItemStringFromStub(
                     ResourceConstants.COLOR_BUNDLE_NAME_PREFIX,
@@ -308,19 +307,11 @@ class ColorProviderTest {
             .thenReturn("Preset 1")
         `when`(
                 resourcesApkProvider.getItemColorFromStub(
-                    ResourceConstants.COLOR_BUNDLE_PRIMARY_COLOR_PREFIX,
+                    ResourceConstants.COLOR_BUNDLE_MAIN_COLOR_PREFIX,
                     "preset_1",
                 )
             )
             .thenReturn(Color.BLUE)
-        `when`(
-                resourcesApkProvider.getItemColorFromStub(
-                    ResourceConstants.COLOR_BUNDLE_SECONDARY_COLOR_PREFIX,
-                    "preset_1",
-                )
-            )
-            .thenReturn(Color.BLUE)
-        // Preset 2: green and red
         `when`(
                 resourcesApkProvider.getItemStringFromStub(
                     ResourceConstants.COLOR_BUNDLE_NAME_PREFIX,
@@ -330,18 +321,11 @@ class ColorProviderTest {
             .thenReturn("Preset 2")
         `when`(
                 resourcesApkProvider.getItemColorFromStub(
-                    ResourceConstants.COLOR_BUNDLE_PRIMARY_COLOR_PREFIX,
+                    ResourceConstants.COLOR_BUNDLE_MAIN_COLOR_PREFIX,
                     "preset_2",
                 )
             )
             .thenReturn(Color.GREEN)
-        `when`(
-                resourcesApkProvider.getItemColorFromStub(
-                    ResourceConstants.COLOR_BUNDLE_SECONDARY_COLOR_PREFIX,
-                    "preset_2",
-                )
-            )
-            .thenReturn(Color.RED)
 
         colorProvider.fetch(listener, reload = true, homeWallpaperColors = null)
 
@@ -353,8 +337,6 @@ class ColorProviderTest {
         assertThat(presetOptions[1].title).isEqualTo("Preset 2")
         assertThat(presetOptions[0].index).isEqualTo(1)
         assertThat(presetOptions[1].index).isEqualTo(2)
-        assertThat(presetOptions[0].seedColors).isEqualTo(listOf(Color.BLUE))
-        assertThat(presetOptions[1].seedColors).isEqualTo(listOf(Color.GREEN, Color.RED))
     }
 
     @Test
@@ -374,14 +356,7 @@ class ColorProviderTest {
             .thenReturn("Monochrome")
         `when`(
                 resourcesApkProvider.getItemColorFromStub(
-                    ResourceConstants.COLOR_BUNDLE_PRIMARY_COLOR_PREFIX,
-                    "monochrome",
-                )
-            )
-            .thenReturn(Color.BLACK)
-        `when`(
-                resourcesApkProvider.getItemColorFromStub(
-                    ResourceConstants.COLOR_BUNDLE_SECONDARY_COLOR_PREFIX,
+                    ResourceConstants.COLOR_BUNDLE_MAIN_COLOR_PREFIX,
                     "monochrome",
                 )
             )
@@ -422,7 +397,7 @@ class ColorProviderTest {
             .thenReturn("Monochrome")
         `when`(
                 resourcesApkProvider.getItemColorFromStub(
-                    ResourceConstants.COLOR_BUNDLE_PRIMARY_COLOR_PREFIX,
+                    ResourceConstants.COLOR_BUNDLE_MAIN_COLOR_PREFIX,
                     "monochrome",
                 )
             )
@@ -461,7 +436,7 @@ class ColorProviderTest {
             .thenReturn("Preset 1")
         `when`(
                 resourcesApkProvider.getItemColorFromStub(
-                    ResourceConstants.COLOR_BUNDLE_PRIMARY_COLOR_PREFIX,
+                    ResourceConstants.COLOR_BUNDLE_MAIN_COLOR_PREFIX,
                     "preset_1",
                 )
             )
@@ -475,7 +450,7 @@ class ColorProviderTest {
             .thenReturn("Preset 2")
         `when`(
                 resourcesApkProvider.getItemColorFromStub(
-                    ResourceConstants.COLOR_BUNDLE_PRIMARY_COLOR_PREFIX,
+                    ResourceConstants.COLOR_BUNDLE_MAIN_COLOR_PREFIX,
                     "preset_2",
                 )
             )

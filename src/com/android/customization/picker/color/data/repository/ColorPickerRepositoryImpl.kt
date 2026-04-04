@@ -247,7 +247,7 @@ constructor(
                         ColorOptionImpl.buildSimplifiedSeedOption(
                             title = null,
                             source = it.colorSource(),
-                            seedColors = it.seedColors().map { it.toArgb() },
+                            seedColor = it.seedColors().first().toArgb(),
                             defaultStyle = it.themeStyle(),
                         )
                     }
@@ -294,7 +294,7 @@ constructor(
                 } else {
                     seedColorStr.toColorInt()
                 }
-            builder.seedColors = listOf(seedColorInt)
+            builder.seedColor = seedColorInt
             builder.lightColors =
                 ColorProviderUtil.getColorPreview(
                     ColorScheme(seedColorInt, /* darkTheme= */ false, style),
@@ -339,7 +339,7 @@ constructor(
         if (shouldUseThemeService) {
             val settings =
                 ThemeSettings.Builder()
-                    .setSeedColors(colorOption.seedColors.map { Color.valueOf(it) })
+                    .setSeedColors(Color.valueOf(colorOption.seedColor))
                     .setThemeStyle(colorOption.style)
                     .setColorSource(colorOption.source)
                     .setAppliedTimestamp(Instant.now())
@@ -378,14 +378,14 @@ constructor(
                 ColorOptionImpl.buildSimplifiedSeedOption(
                     title = colorOption.title,
                     source = colorOption.source,
-                    seedColors = colorOption.seedColors,
+                    seedColor = colorOption.seedColor,
                     defaultStyle = style,
                 )
             } else {
                 if (colorOption.source == ColorProviderUtil.COLOR_SOURCE_PRESET) {
                     ColorProviderUtil.buildPreset(
                         title = colorOption.title,
-                        colors = colorOption.seedColors,
+                        color = colorOption.seedColor,
                         index = colorOption.index,
                         style = style,
                         isColorPickerUpdateEnabled = baseFlags.isColorPickerUpdateEnabled(),
@@ -393,7 +393,7 @@ constructor(
                 } else {
                     ColorProviderUtil.buildBundle(
                         context = appContext,
-                        colors = colorOption.seedColors,
+                        colorInt = colorOption.seedColor,
                         index = colorOption.index,
                         style = style,
                         isDefault = colorOption.isDefault,

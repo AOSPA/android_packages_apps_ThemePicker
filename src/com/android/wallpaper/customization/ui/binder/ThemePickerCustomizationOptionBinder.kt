@@ -535,7 +535,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                                         )
                                     previewColorOption?.let {
                                         colorUpdateViewModel.previewColors(
-                                            previewColorOption.seedColors,
+                                            previewColorOption.seedColor,
                                             previewStyle ?: previewColorOption.style,
                                             previewIsDarkMode,
                                         )

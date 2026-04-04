@@ -171,7 +171,7 @@ class FakeColorPickerRepository @Inject constructor(private val baseFlags: BaseF
         builder.source = ColorProviderUtil.COLOR_SOURCE_PRESET
         builder.style = style
         builder.title = "Preset"
-        builder.seedColors = listOf(seedColor)
+        builder.seedColor = seedColor
         builder
             .addOverlayPackage("TEST_PACKAGE_TYPE", "preset_color")
             .addOverlayPackage(
@@ -211,7 +211,7 @@ class FakeColorPickerRepository @Inject constructor(private val baseFlags: BaseF
         builder.source = source
         builder.style = style
         builder.title = "Dynamic"
-        builder.seedColors = listOf(seedColor)
+        builder.seedColor = seedColor
         builder
             .addOverlayPackage("TEST_PACKAGE_TYPE", "wallpaper_color")
             .addOverlayPackage(

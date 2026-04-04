@@ -18,14 +18,12 @@ package com.android.customization.model.color;
 import static com.android.customization.model.ResourceConstants.OVERLAY_CATEGORY_COLOR;
 import static com.android.customization.model.ResourceConstants.OVERLAY_CATEGORY_SYSTEM_PALETTE;
 
-import android.annotation.Size;
 import android.content.Context;
 import android.content.theming.ThemeStyle;
 import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.customization.model.CustomizationManager;
@@ -40,7 +38,6 @@ import org.json.JSONObject;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -64,24 +61,17 @@ public abstract class ColorOption implements CustomizationOption<ColorOption> {
     private final Integer mStyle;
     private final int mIndex;
     private CharSequence mContentDescription;
-    @NonNull
-    @Size(min = 1)
-    @ColorInt
-    private final List<Integer> mSeedColors;
+    private final @ColorInt int mSeedColor;
 
     private final boolean mIsThemeServiceEnabled;
     private final boolean mIsColorPickerUpdateEnabled;
 
     protected ColorOption(String title, Map<String, String> overlayPackages, boolean isDefault,
-            @NonNull @Size(min = 1) @ColorInt List<Integer> seedColors,
-            @ThemeStyle.Type Integer style, int index, boolean isThemeServiceEnabled,
-            boolean isColorPickerUpdateEnabled) {
-        if (seedColors.isEmpty()) {
-            throw new IllegalArgumentException("Seed color list cannot be empty");
-        }
+            int seedColor, @ThemeStyle.Type Integer style, int index,
+            boolean isThemeServiceEnabled, boolean isColorPickerUpdateEnabled) {
         mTitle = title;
         mIsDefault = isDefault;
-        mSeedColors = seedColors;
+        mSeedColor = seedColor;
         mStyle = style;
         mIndex = index;
         mPackagesByCategory = Collections.unmodifiableMap(removeNullValues(overlayPackages));
@@ -131,11 +121,8 @@ public abstract class ColorOption implements CustomizationOption<ColorOption> {
         }
     }
 
-    @NonNull
-    @Size(min = 1)
-    @ColorInt
-    public List<Integer> getSeedColors() {
-        return mSeedColors;
+    public @ColorInt int getSeedColor() {
+        return mSeedColor;
     }
 
     /**
