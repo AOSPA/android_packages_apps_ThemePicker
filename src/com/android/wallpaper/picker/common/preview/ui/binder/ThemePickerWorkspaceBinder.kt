@@ -19,6 +19,7 @@ package com.android.wallpaper.picker.common.preview.ui.binder
 import android.view.SurfaceView
 import android.view.View
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.LifecycleOwner
 import com.android.customization.picker.clock.ui.view.ClockViewFactory
 import com.android.wallpaper.config.BaseFlags
@@ -28,6 +29,7 @@ import com.android.wallpaper.model.wallpaper.DeviceDisplayType
 import com.android.wallpaper.picker.common.preview.ui.compose.ColorPreviewScreens
 import com.android.wallpaper.picker.customization.ui.viewmodel.ColorUpdateViewModel
 import com.android.wallpaper.picker.customization.ui.viewmodel.CustomizationPickerViewModel2
+import com.android.wallpaper.util.DisplayUtils
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,6 +38,7 @@ class ThemePickerWorkspaceBinder
 @Inject
 constructor(
     private val defaultWorkspaceBinder: DefaultWorkspaceBinder,
+    private val displayUtils: DisplayUtils,
     private val baseFlags: BaseFlags,
 ) : WorkspaceBinder {
 
@@ -64,14 +67,21 @@ constructor(
         if (baseFlags.isColorPickerUpdateEnabled() && screen == Screen.HOME_SCREEN) {
             val optionsViewModel =
                 viewModel.customizationOptionsViewModel as ThemePickerCustomizationOptionsViewModel
-            alternativeWorkspaceView.setContent {
-                ColorPreviewScreens(
-                    optionsViewModel = optionsViewModel,
-                    colorPickerViewModel = optionsViewModel.colorPickerViewModel2,
-                    darkModeViewModel = optionsViewModel.darkModeViewModel,
+            alternativeWorkspaceView.apply {
+                // Make sure Composable lifecycle aligns with fragment lifecycle
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnLifecycleDestroyed(lifecycleOwner)
                 )
+                setContent {
+                    ColorPreviewScreens(
+                        optionsViewModel = optionsViewModel,
+                        colorPickerViewModel = optionsViewModel.colorPickerViewModel2,
+                        darkModeViewModel = optionsViewModel.darkModeViewModel,
+                        displayUtils = displayUtils,
+                    )
+                }
+                visibility = View.VISIBLE
             }
-            alternativeWorkspaceView.visibility = View.VISIBLE
         }
     }
 }
